@@ -1,4 +1,4 @@
-CREATE DATABASE Project2; 
+CREATE DATABASE IF NOT EXISTS Project2; 
 
 USE Project2;
 
@@ -13,7 +13,9 @@ create table IF NOT EXISTS Status_Type
 create table IF NOT EXISTS Users
  (User_ID varchar(20) not NULL, 
   UserFirstName varchar(20) not NULL,
-  UserLasrName varchar(20) not NULL,
+  UserLastName varchar(20) not NULL,
+  UserPassword varchar(255) not NULL,
+  UserSalt varchar(255) not NULL,
   constraint pk_Users_ID primary key(User_ID) 
  );
 CREATE TABLE IF NOT EXISTS Moderators
@@ -55,44 +57,49 @@ insert into Status_Type (Status_ID, StatusName)
 values ('PN','Pending'),('AC','Active'),('DI','Disapproved');
 
 /* Users Data */ 
-insert into Users (User_ID, UserFirstName, UserLasrName)
-values ('clarson','Connor','Larson'), ('Jsmith', 'John', 'Smith');
+insert into Users (User_ID, UserFirstName, UserLastName,UserPassword,UserSalt )
+values ('clarson','Connor','Larson',
+'c69b89b2c35b7e46d739dd087a4dd9626503212b2786247a9b99f129038469a06c5e2a9cf7489036a55b43e87f043886ff98bd2854df236f5d001bfa6d51675b',
+'b\'$2b$12$BH0ITAYZ1tkfxcQUzSU8IO\''), 
+('Jsmith', 'John', 'Smith',
+'c69b89b2c35b7e46d739dd087a4dd9626503212b2786247a9b99f129038469a06c5e2a9cf7489036a55b43e87f043886ff98bd2854df236f5d001bfa6d51675b',
+'b\'$2b$12$BH0ITAYZ1tkfxcQUzSU8IO\'');
 
 /* Moderators Data */
 insert into Moderators(User_ID)
-	VALUES ((SELECT User_ID FROM Users where UserFirstName = 'Connor' and UserLasrName = 'Larson' ));
+	VALUES ((SELECT User_ID FROM Users where UserFirstName = 'Connor' and UserLastName = 'Larson' ));
 
 
 /* Advertisements Data */ 
 INSERT into Advertisements (AdvTitle, AdvDetails, AdvDateTime, price, User_ID, Moderator_ID, Category_ID, Status_ID)
 	VALUES ('2010 Sedan Subaru', '2010 sedan car in great shape for sale','2017-02-10', 6000,
-		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLasrName = 'Smith'),
+		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLastName = 'Smith'),
 		(SELECT User_ID FROM Moderators WHERE User_ID = 'clarson'), 
 		(SELECT Category_ID FROM Categories WHERE CatName = 'Cars and Trucks'), 
 		(SELECT Status_ID FROM Status_Type WHERE StatusName = 'Active')
 		),
 		('Nice Office Desk', ' Nice office desk for sale','2017-02-15', 50.25,
-		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLasrName = 'Smith'),
+		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLastName = 'Smith'),
 		(SELECT User_ID FROM Moderators WHERE User_ID = 'clarson'), 
 		(SELECT Category_ID FROM Categories WHERE CatName = 'Houseing'), 
 		(SELECT Status_ID FROM Status_Type WHERE StatusName = 'Active')
 		), 
 		('Smart LG TV for $200 ONLY', 'Smart LG TV 52 inches! Really cheap!','2017-03-15', 200,
-		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLasrName = 'Smith'),
+		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLastName = 'Smith'),
 		(SELECT User_ID FROM Moderators WHERE User_ID = 'clarson'), 
 		(SELECT Category_ID FROM Categories WHERE CatName = 'Electronics'), 
 		(SELECT Status_ID FROM Status_Type WHERE StatusName = 'Active')
 		), 
 		(
 		'HD Tablet for $25 only', 'Amazon Fire Tablet HD','2017-03-20', 25,
-		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLasrName = 'Smith'),
+		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLastName = 'Smith'),
 		null, 
 		(SELECT Category_ID FROM Categories WHERE CatName = 'Electronics'), 
 		(SELECT Status_ID FROM Status_Type WHERE StatusName = 'Pending')
 		), 
 		(
 		'Laptop for $100', 'Amazing HP laptop for $100','2017-03-20', 100,
-		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLasrName = 'Smith'),
+		(SELECT User_ID FROM Users WHERE  UserFirstName = 'John' and UserLastName = 'Smith'),
 		null, 
 		(SELECT Category_ID FROM Categories WHERE CatName = 'Electronics'), 
 		(SELECT Status_ID FROM Status_Type WHERE StatusName = 'Pending')
