@@ -1,16 +1,16 @@
 from tkinter import *
-
+import mysql
 
 
 #Sample sql call
 
-#import mysql.connector
+import mysql.connector
 
 
 #mydb = mysql.connector.connect(
 #  host="localhost",
 #  user="root",
-#  passwd="password",
+#  password="root", # this will be different depening on your database
 #  database="Project2"
 #)
 
@@ -25,42 +25,72 @@ from tkinter import *
 
 
 
+def login_verify():
+    username1 = username_verify.get()
+    password1 = user_type_verify.get()
+    username_login_entry.delete(0, END)
+    user_type_entry.delete(0, END)
+
+    # todo write sql statement to get the list of users or moderators depending on options put in
+    # list_of_files =
+    if username1 in list_of_files:
+        file1 = open(username1, "r")
+        verify = file1.read().splitlines()
+        if password1 in verify:
+            login_sucess()
+
+        else:
+            password_not_recognised()
+
+    else:
+        user_not_found()
 
 
+#todo define the above classes
 
 
-def login_account_screen():
-    main_screen = Tk()  # create a GUI window
-    main_screen.geometry("300x250")  # set the configuration of GUI window
-    main_screen.title("Account Login")  # set the title of GUI window
-    username = StringVar()
+# main page
+def main_account_screen():
+    global main_screen
+    main_screen = Tk()
+    main_screen.geometry("300x250")
+    main_screen.title("Account Login")
+
+    global username_verify
+    global user_type_verify
+
+    username_verify = StringVar()
+
+    global username_login_entry
+    global user_type_entry
+
 
     # create a Form label
-    form_Label = Label(text="Choose Login", bg="blue", width="300", height="2", font=("Calibri", 13))
-    form_Label.pack()
+    form_label = Label(text="Choose Login", bg="red", width="300", height="2", font=("Calibri", 22))
+    form_label.pack()
     Label(text="").pack()
 
     # Set username label
-    username_lable = Label(main_screen, text="Enter your Username and select User Type ")
-    username_lable.pack()
+    username_label = Label(main_screen, text="Enter your Username and select User Type ")
+    username_label.pack()
 
     # Set username entry
-    username_entry = Entry(main_screen, textvariable=username)
-    username_entry.pack()
+    username_login_entry = Entry(main_screen, textvariable=username_verify)
+    username_login_entry.pack()
 
     # User Selection
-    variable = StringVar(main_screen)
-    variable.set("USER")  # default value
+    user_type_verify = StringVar(main_screen)
+    user_type_verify.set("USER")  # default value
 
-    userDropDown = OptionMenu(main_screen, variable, "USER", "MODERATOR")
-    userDropDown.pack()
+    user_type_entry = OptionMenu(main_screen, user_type_verify, "USER", "MODERATOR")
+    user_type_entry.pack()
 
     # create Login Button
-    login_button = Button(text="Login", height="2", width="30")
+    login_button = Button(text="Login", height="2", width="30", command= login_verify )
     login_button.pack()
     Label(text="").pack()
 
-    main_screen.mainloop()  # start the GUI
+    main_screen.mainloop()
 
 
-login_account_screen()
+main_account_screen()
