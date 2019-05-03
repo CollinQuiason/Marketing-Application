@@ -1,5 +1,38 @@
 from tkinter import *
 
+import hashlib, os, uuid, bcrypt
+
+
+
+def check_secure_val(salt, password, hashval): #Requires that the 'h' is in the form ("<inputpasswordtocheck>,<hashvalfromDB>")
+    rehashval = hash(salt, password)
+    if rehashval == hashval:
+        return True
+    return False
+def hash(salt, password):
+    #password_salt = uuid.uuid4().hex
+    #password_salt = ""
+    
+    #print(password_salt)
+    hash = hashlib.sha512()
+    hash.update(('%s%s' % (salt, password)).encode('utf-8'))
+    passhash = hash.hexdigest()
+    return passhash
+
+def generateSalt():
+    return bcrypt.gensalt()
+
+
+passw = '12345'
+password_salt = generateSalt()
+password_hash = hash(password_salt, passw)
+
+
+print(check_secure_val(password_salt, passw, password_hash))
+
+
+
+
 #Sample sql call
 
 import mysql.connector
@@ -8,9 +41,9 @@ import mysql.connector
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="root", # this will be different depening on your database
+ password="password", # this will be different depening on your database
  database="Project2",
- port = 8889
+ port = 3306
 )
 
 #mycursor = mydb.cursor()
