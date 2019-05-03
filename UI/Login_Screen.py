@@ -1,6 +1,32 @@
 from tkinter import *
 
-# from mysql import *
+
+
+#Sample sql call
+
+#import mysql.connector
+
+
+#mydb = mysql.connector.connect(
+#  host="localhost",
+#  user="root",
+#  passwd="password",
+#  database="Project2"
+#)
+
+#mycursor = mydb.cursor()
+#sqlstatement = "SELECT * FROM users WHERE UserFirstName = %(name)s;"
+#mycursor.execute(sqlstatement, {"name": "Connor"})
+
+#myresult = mycursor.fetchall()
+
+#for x in myresult:
+#  print(x)
+
+
+
+
+
 
 
 def login_account_screen():
