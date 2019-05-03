@@ -6,26 +6,23 @@ import hashlib, os, uuid, bcrypt
 
 
 
-# def check_secure_val(salt, password, hashval): #Requires that the 'h' is in the form ("<inputpasswordtocheck>,<hashvalfromDB>")
-#     rehashval = hash(salt, password)
-#     if rehashval == hashval:
-#         return True
-#     return False
-# def hash(salt, password):
-#     #password_salt = uuid.uuid4().hex
-#     #password_salt = ""
-#
-#     #print(password_salt)
-#     hash = hashlib.sha512()
-#     hash.update(('%s%s' % (salt, password)).encode('utf-8'))
-#     passhash = hash.hexdigest()
-#     return passhash
-#
-# def generateSalt():
-#     return bcrypt.gensalt()
-#
-#
-# passw = '12345'
+def check_secure_val(salt, password, hashval): #Requires that the 'h' is in the form ("<inputpasswordtocheck>,<hashvalfromDB>")
+    rehashval = hash(salt, password)
+    if rehashval == hashval:
+        return True
+    return False
+def hash(salt, password):
+    #password_salt = uuid.uuid4().hex
+     #password_salt = ""
+     #print(password_salt)
+    hash = hashlib.sha512()
+    hash.update(('%s%s' % (salt, password)).encode('utf-8'))
+    passhash = hash.hexdigest()
+    return passhash
+def generateSalt():
+   return bcrypt.gensalt()
+
+ #passw = '12345'
 # password_salt = generateSalt()
 # password_hash = hash(password_salt, passw)
 #
@@ -43,9 +40,9 @@ import mysql.connector
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="root", # this will be different depening on your database
+ password="password", # this will be different depening on your database
  database="Project2",
- port = 8889 #or 3306
+ port = 3306#8889
 )
 
 #mycursor = mydb.cursor()
@@ -61,17 +58,18 @@ mydb = mysql.connector.connect(
 
 def login_verify():
     username = username_verify.get()
+    password = userpassword_verify.get()
     user_type = user_type_verify.get()
     username_login_entry.delete(0, END)
     my_cursor = mydb.cursor()
 
     if user_type == 'USER' :
-        sqlstatement = "SELECT User_ID FROM Users WHERE User_ID = %(User_ID)s;"
+        sqlstatement = "SELECT User_ID, UserPassword, UserSalt FROM Users WHERE User_ID = %(User_ID)s;"
         my_cursor.execute(sqlstatement, {"User_ID": username})
         list_of_users = my_cursor.fetchall()
         flag_user_found = False
         for x in list_of_users:
-            if username == x[0]:
+            if (username == x[0] and check_secure_val(x[2], password, x[1])):
                 flag_user_found = True
                 login_success_user()
         if not flag_user_found:
@@ -179,11 +177,14 @@ def main_account_screen():
     main_screen.title("Account Login")
 
     global username_verify
+    global userpassword_verify
     global user_type_verify
 
     username_verify = StringVar()
+    userpassword_verify = StringVar()
 
     global username_login_entry
+    global userpassword_login_entry
     global user_type_entry
 
 
@@ -199,6 +200,10 @@ def main_account_screen():
     # Set username entry
     username_login_entry = Entry(main_screen, textvariable=username_verify)
     username_login_entry.pack()
+
+    # Set password entry
+    userpassword_login_entry = Entry(main_screen, textvariable = userpassword_verify)
+    userpassword_login_entry.pack()
 
     # User Selection
     user_type_verify = StringVar(main_screen)
