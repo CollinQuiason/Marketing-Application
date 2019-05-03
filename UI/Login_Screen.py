@@ -1,18 +1,17 @@
 from tkinter import *
-import mysql
-
 
 #Sample sql call
 
 import mysql.connector
 
 
-#mydb = mysql.connector.connect(
-#  host="localhost",
-#  user="root",
-#  password="root", # this will be different depening on your database
-#  database="Project2"
-#)
+mydb = mysql.connector.connect(
+ host="localhost",
+ user="root",
+ password="root", # this will be different depening on your database
+ database="Project2",
+ port = 8889
+)
 
 #mycursor = mydb.cursor()
 #sqlstatement = "SELECT * FROM users WHERE UserFirstName = %(name)s;"
@@ -26,30 +25,45 @@ import mysql.connector
 
 
 def login_verify():
-    username1 = username_verify.get()
-    password1 = user_type_verify.get()
+    username = username_verify.get()
+    user_type = user_type_verify.get()
     username_login_entry.delete(0, END)
-    user_type_entry.delete(0, END)
+    my_cursor = mydb.cursor()
 
-    # todo write sql statement to get the list of users or moderators depending on options put in
-    # list_of_files =
-    if username1 in list_of_files:
-        file1 = open(username1, "r")
-        verify = file1.read().splitlines()
-        if password1 in verify:
-            login_sucess()
+    if user_type == 'USER' :
+        sqlstatement = "SELECT User_ID FROM Users WHERE User_ID = %(User_ID)s;"
+        my_cursor.execute(sqlstatement, {"User_ID": username})
+        list_of_users = my_cursor.fetchall()
+        if username in list_of_users :
+            login_success_user()
+        else :
+            user_not_found()
 
-        else:
-            password_not_recognised()
 
-    else:
-        user_not_found()
+    else :
+        sqlstatement = "SELECT User_ID FROM Moderators WHERE User_ID = %(User_ID)s;"
+        my_cursor.execute(sqlstatement, {"User_ID": username})
+        list_of_moderators = my_cursor.fetchall()
+        if username in list_of_moderators :
+            login_success_moderators()
+        else :
+            moderator_not_found()
+
+def login_success_user():
+
+def login_success_moderators():
+
+def user_not_found():
+
+def moderator_not_found():
+
 
 
 #todo define the above classes
 
 
 # main page
+
 def main_account_screen():
     global main_screen
     main_screen = Tk()
@@ -81,7 +95,6 @@ def main_account_screen():
     # User Selection
     user_type_verify = StringVar(main_screen)
     user_type_verify.set("USER")  # default value
-
     user_type_entry = OptionMenu(main_screen, user_type_verify, "USER", "MODERATOR")
     user_type_entry.pack()
 
