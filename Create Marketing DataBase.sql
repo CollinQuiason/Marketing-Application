@@ -1,3 +1,7 @@
+CREATE DATABASE Project2; 
+
+USE Project2;
+
 create table IF NOT EXISTS Categories(Category_ID varchar(3) not NULL, 
 CatName varchar(20) not NULL, 
 constraint pk_Category_ID primary key(Category_ID));
