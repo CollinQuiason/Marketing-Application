@@ -1,4 +1,6 @@
 from tkinter import *
+from tkinter import ttk
+
 
 #Sample sql call
 
@@ -107,25 +109,33 @@ def user_screen():
     # todo add stuff
     main_screen.destroy()
     global user_screen
-    user_screen = Tk()
-    user_screen.geometry("500x300")
-    user_screen.title("User Tab")
-    form_label = Label(text="User Tab", bg="green", width="300", height="2", font=("Calibri", 22))
-    form_label.pack()
-    Label(text="").pack()
+    # form_label = Label(text="User Tab", bg="green", width="300", height="2", font=("Calibri", 22))
+    # form_label.pack()
+    # Label(text="").pack()
+    user_screen = Tk()  # Create instance
+    user_screen.geometry("700x500")
+    user_screen.title("User Tab")  # Add a title
+    tab_control = ttk.Notebook(user_screen)  # Create Tab Control
+    tab1 = ttk.Frame(tab_control)  # Create a tab
+    tab2 = ttk.Frame(tab_control)  # Create a tab
+    tab_control.add(tab1, text='Tab 1')  # Add the tab
+    tab_control.add(tab2, text='Tab 2')  # Add the tab
+    tab_control.pack(expand=1, fill="both")  # Pack to make visible
+    user_screen.mainloop()
+
+
 
 def moderator_screen():
     # todo add stuff
     main_screen.destroy()
     global moderator_screen
     moderator_screen = Tk()
-    moderator_screen.geometry("500x300")
+    moderator_screen.geometry("700x500")
     moderator_screen.title("Moderator Tab")
     form_label = Label(text="Moderator Tab", bg="blue", width="300", height="2", font=("Calibri", 22))
     form_label.pack()
     Label(text="").pack()
 
-# todo define the above classes
 
 
 # main page
