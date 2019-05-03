@@ -34,32 +34,96 @@ def login_verify():
         sqlstatement = "SELECT User_ID FROM Users WHERE User_ID = %(User_ID)s;"
         my_cursor.execute(sqlstatement, {"User_ID": username})
         list_of_users = my_cursor.fetchall()
-        if username in list_of_users :
-            login_success_user()
-        else :
+        flag_user_found = False
+        for x in list_of_users:
+            if username == x[0]:
+                flag_user_found = True
+                login_success_user()
+        if not flag_user_found:
             user_not_found()
-
 
     else :
         sqlstatement = "SELECT User_ID FROM Moderators WHERE User_ID = %(User_ID)s;"
         my_cursor.execute(sqlstatement, {"User_ID": username})
         list_of_moderators = my_cursor.fetchall()
-        if username in list_of_moderators :
-            login_success_moderators()
-        else :
+        flag_moderator_found = False
+        for x in list_of_moderators:
+            if username == x[0]:
+                flag_moderator_found = True
+                login_success_moderators()
+        if not flag_moderator_found:
             moderator_not_found()
 
+
 def login_success_user():
+    global login_success_users_screen
+    login_success_users_screen = Toplevel(main_screen)
+    login_success_users_screen.title("Success")
+    login_success_users_screen.geometry("150x100")
+    Label(login_success_users_screen, text="Login Success").pack()
+    Button(login_success_users_screen, text="OK", command=delete_login_success_users).pack()
 
 def login_success_moderators():
+    global login_success_moderators_screen
+    login_success_moderators_screen = Toplevel(main_screen)
+    login_success_moderators_screen.title("Success")
+    login_success_moderators_screen.geometry("150x100")
+    Label(login_success_moderators_screen, text="Login Success").pack()
+    Button(login_success_moderators_screen, text="OK", command=delete_login_success_moderators).pack()
 
 def user_not_found():
-
+    global user_not_found_screen
+    user_not_found_screen = Toplevel(main_screen)
+    user_not_found_screen.title("User Not Found")
+    user_not_found_screen.geometry("150x100")
+    Label(user_not_found_screen, text="User Not Found").pack()
+    Button(user_not_found_screen, text="OK", command=delete_user_not_found_screen).pack()
 def moderator_not_found():
+    global moderator_not_found_screen
+    moderator_not_found_screen = Toplevel(main_screen)
+    moderator_not_found_screen.title("Moderator Not Found")
+    moderator_not_found_screen.geometry("150x100")
+    Label(moderator_not_found_screen, text="Moderator Not Found").pack()
+    Button(moderator_not_found_screen, text="OK", command=delete_moderator_not_found_screen).pack()
+
+def delete_login_success_users():
+    login_success_users_screen.destroy()
+    user_screen()
+
+def delete_login_success_moderators():
+    login_success_moderators_screen.destroy()
+    moderator_screen()
+
+def delete_user_not_found_screen():
+    user_not_found_screen.destroy()
+
+
+def delete_moderator_not_found_screen():
+    moderator_not_found_screen.destroy()
 
 
 
-#todo define the above classes
+def user_screen():
+    # todo add stuff
+    global user_screen
+    user_screen = Toplevel(main_screen)
+    user_screen.geometry("300x250")
+    user_screen.title("User Tab")
+    form_label = Label(text="User Tab", bg="green", width="300", height="2", font=("Calibri", 22))
+    form_label.pack()
+    Label(text="").pack()
+
+def moderator_screen():
+    # todo add stuff
+    global moderator_screen
+    moderator_screen = Toplevel(main_screen)
+    moderator_screen.geometry("300x250")
+    moderator_screen.title("Moderator Tab")
+    form_label = Label(text="Moderator Tab", bg="blue", width="300", height="2", font=("Calibri", 22))
+    form_label.pack()
+    Label(text="").pack()
+
+# todo define the above classes
 
 
 # main page
