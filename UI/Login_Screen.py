@@ -105,9 +105,10 @@ def delete_moderator_not_found_screen():
 
 def user_screen():
     # todo add stuff
+    main_screen.destroy()
     global user_screen
-    user_screen = Toplevel(main_screen)
-    user_screen.geometry("300x250")
+    user_screen = Tk()
+    user_screen.geometry("500x300")
     user_screen.title("User Tab")
     form_label = Label(text="User Tab", bg="green", width="300", height="2", font=("Calibri", 22))
     form_label.pack()
@@ -115,9 +116,10 @@ def user_screen():
 
 def moderator_screen():
     # todo add stuff
+    main_screen.destroy()
     global moderator_screen
-    moderator_screen = Toplevel(main_screen)
-    moderator_screen.geometry("300x250")
+    moderator_screen = Tk()
+    moderator_screen.geometry("500x300")
     moderator_screen.title("Moderator Tab")
     form_label = Label(text="Moderator Tab", bg="blue", width="300", height="2", font=("Calibri", 22))
     form_label.pack()
