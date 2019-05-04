@@ -2,7 +2,10 @@ from tkinter import *
 from tkinter import ttk
 
 
-import hashlib, os, uuid, bcrypt
+import hashlib
+import os
+import uuid
+import bcrypt
 
 
 
@@ -19,8 +22,8 @@ def hash(salt, password):
     hash.update(('%s%s' % (salt, password)).encode('utf-8'))
     passhash = hash.hexdigest()
     return passhash
-def generateSalt():
-   return bcrypt.gensalt()
+#def generateSalt():
+#   return bcrypt.gensalt()
 
  #passw = '12345'
 # password_salt = generateSalt()
@@ -42,7 +45,8 @@ mydb = mysql.connector.connect(
  user="root",
  password="password", # this will be different depening on your database
  database="Project2",
- port = 3306#8889
+ port = 3306#8889,
+ #auth_plugin='mysql_native_password'
 )
 
 #mycursor = mydb.cursor()
@@ -156,15 +160,107 @@ def user_screen():
 
 
 def moderator_screen():
+
+    def search_button_click():
+        print("Search Button Clicked")
+    def claimad_button_click():
+        print("Ad Claim Button Clicked")
+
     # todo add stuff
     main_screen.destroy()
     global moderator_screen
+
     moderator_screen = Tk()
-    moderator_screen.geometry("700x500")
+    moderator_screen.geometry("750x600")
     moderator_screen.title("Moderator Tab")
+
+    global search_verify
+    search_verify = StringVar(moderator_screen)
+
     form_label = Label(text="Moderator Tab", bg="blue", width="300", height="2", font=("Calibri", 22))
     form_label.pack()
+    tab_control = ttk.Notebook(moderator_screen)  # Create Tab Control
+
+    tab1 = ttk.Frame(tab_control)  # Create a tab
+    tab2 = ttk.Frame(tab_control)  # Create a tab
+
+
+
+    tab_control.add(tab1, text='Unclaimed Advertisements')  # Add the tab
+    tab_control.add(tab2, text='My Advertisements') # Add the tab
+
+    optionsframe = ttk.Frame(tab1)
+    optionsframe.pack(side="top", fill="x")     #Split tab into two frames top and bottom
+
+    tableframe = ttk.Frame(tab1)                #Split tab into two frames top and bottom
+    tableframe.pack(side="bottom", fill="x")
+
+    category_options = [ # Category options menu
+        "All",
+        "Cars and Trucks",
+        "Housing",
+        "Electronics",
+        "Child Care"
+    ]
+    category_verify = StringVar(optionsframe)
+    category_verify.set(category_options[0])  # default value
+    category_entry = OptionMenu(optionsframe, category_verify, *category_options)
+    Label(optionsframe, text="Category").grid(row = 1, column = 1, padx=20)
+    category_entry.grid(row = 2, column = 1)
     Label(text="").pack()
+
+    period_options = [ # Period options menu
+        "Forever",
+        "Past Day",
+        "Past Week",
+        "Past Month",
+        "Past Year"
+    ]
+    period_verify = StringVar(optionsframe)
+    period_verify.set(period_options[0])  # default value
+    period_entry = OptionMenu(optionsframe, category_verify, *period_options)
+    Label(optionsframe, text="Period").grid(row = 1, column = 2, padx=20)
+    period_entry.grid(row = 2, column = 2)
+    Label(text="").pack()
+
+    Label(optionsframe, text="Title, Description:").grid(row = 1, column = 3, padx = 40)                    #Search bar in tab 1
+    search_entry = Entry(optionsframe, textvariable = search_verify).grid(row = 2, column = 3, padx = 40)
+
+    Button(optionsframe, text="GO", command=search_button_click).grid(row = 2, column = 4, sticky = "W") #Search button
+
+
+    rowsize, columnsize = optionsframe.grid_size()
+    Button(optionsframe, text="Claim Ad", command = claimad_button_click, justify= "right").grid(row = 3, column = 4, padx = 300,pady = 20)
+
+
+
+
+
+
+    unclaimedAdsTable = ttk.Treeview(tableframe) #Unclaimed Ads Table
+    unclaimedAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date')
+    #unclaimedAdsTable.heading("#0", text='ID', anchor='w')
+    #unclaimedAdsTable.column("#0", anchor="w")
+    unclaimedAdsTable['show'] = 'headings'
+    unclaimedAdsTable.heading('id', text='ID')
+    unclaimedAdsTable.column('id', width=125)
+    unclaimedAdsTable.heading('title', text='Title')
+    unclaimedAdsTable.column('title', width=125)
+    unclaimedAdsTable.heading('description', text='Description')
+    unclaimedAdsTable.column('description', width=125)
+    unclaimedAdsTable.heading('price', text='Price')
+    unclaimedAdsTable.column('price', width=125)
+    unclaimedAdsTable.heading('status', text='Status')
+    unclaimedAdsTable.column('status', width=125)
+    unclaimedAdsTable.heading('date', text='Date')
+    unclaimedAdsTable.column('date', width=125)
+    unclaimedAdsTable.pack()
+
+    
+
+
+    tab_control.pack(expand=1, fill="both")  # Pack to make visible
+    moderator_screen.mainloop()
 
 
 

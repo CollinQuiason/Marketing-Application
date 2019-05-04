@@ -1,2 +1,5 @@
-# Marketing-Application
-MySql DB application project
+# Marketing Application
+## Python-driven MySql DB application 
+### Collaborators: Collin, Jordan, Connor, & Tyler
+
+
