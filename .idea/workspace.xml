@@ -26,8 +26,8 @@
       <file leaf-file-name="Login_Screen.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/UI/Login_Screen.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="277">
-              <caret line="282" column="51" selection-start-line="282" selection-start-column="51" selection-end-line="282" selection-end-column="51" />
+            <state relative-caret-position="-604">
+              <caret line="272" column="47" selection-start-line="272" selection-start-column="47" selection-end-line="272" selection-end-column="47" />
               <folding>
                 <element signature="e#0#21#0" expanded="true" />
               </folding>
@@ -461,7 +461,14 @@
       <option name="project" value="LOCAL" />
       <updated>1557017277514</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Works Kinda">
+      <created>1557030916506</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1557030916506</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TodoView">
@@ -515,7 +522,8 @@
     <MESSAGE value="Fixed transition to user and mod screens" />
     <MESSAGE value="added tabs to user screen" />
     <MESSAGE value="Added Hollow UI to User Screen" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Hollow UI to User Screen" />
+    <MESSAGE value="Works Kinda" />
+    <option name="LAST_COMMIT_MESSAGE" value="Works Kinda" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -545,8 +553,13 @@
           <line>124</line>
           <option name="timeStamp" value="22" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/UI/Login_Screen.py</url>
+          <line>290</line>
+          <option name="timeStamp" value="24" />
+        </line-breakpoint>
       </breakpoints>
-      <option name="time" value="23" />
+      <option name="time" value="25" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -563,8 +576,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/UI/Login_Screen.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="277">
-          <caret line="282" column="51" selection-start-line="282" selection-start-column="51" selection-end-line="282" selection-end-column="51" />
+        <state relative-caret-position="-604">
+          <caret line="272" column="47" selection-start-line="272" selection-start-column="47" selection-end-line="272" selection-end-column="47" />
           <folding>
             <element signature="e#0#21#0" expanded="true" />
           </folding>

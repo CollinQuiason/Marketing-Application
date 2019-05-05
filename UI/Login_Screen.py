@@ -267,18 +267,18 @@ def user_screen(username):
 
     def build_table2(my_advertisements, data1):
 
-        my_advertisements['columns'] = ('id','title', 'description','status', 'price', 'date')
+        my_advertisements['columns'] = ('id','title', 'description', 'price','status', 'date')
         my_advertisements['show'] = 'headings'
         my_advertisements.heading('id', text='ID')
-        my_advertisements.column('id', width=125)
+        my_advertisements.column('id', width=40)
         my_advertisements.heading('title', text='Title')
         my_advertisements.column('title', width=125)
         my_advertisements.heading('description', text='Description')
-        my_advertisements.column('description', width=125)
-        my_advertisements.heading('status', text='Status')
-        my_advertisements.column('status', width=125)
+        my_advertisements.column('description', width=250)
         my_advertisements.heading('price', text='Price')
-        my_advertisements.column('price', width=125)
+        my_advertisements.column('price', width=75)
+        my_advertisements.heading('status', text='Status')
+        my_advertisements.column('status', width=80)
         my_advertisements.heading('date', text='Date')
         my_advertisements.column('date', width=125)
         for row in data1:
@@ -294,7 +294,7 @@ def user_screen(username):
     sqlstatement = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
     my_cursor.execute(sqlstatement, {"User_ID": username})
     result = my_cursor.fetchall()
-    build_table2(advertisements, result)
+    build_table2(my_advertisements, result)
 
 
     tab_control.pack(expand=1, fill="both")
