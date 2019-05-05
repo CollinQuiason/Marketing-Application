@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
-
+import mysql.connector
+import datetime
 
 import hashlib
 import os
@@ -35,12 +36,7 @@ def hash(salt, password):
 # print(check_secure_val(password_salt, passw, password_hash))
 
 
-
-
 #Sample sql call
-
-import mysql.connector
-
 
 mydb = mysql.connector.connect(
  host="localhost",
@@ -77,7 +73,7 @@ def login_verify():
         for x in list_of_users:
             if (username == x[0] and check_secure_val(x[2], password, x[1])):
                 flag_user_found = True
-                login_success_user()
+                login_success_user(username)
         if not flag_user_found:
             user_not_found()
 
@@ -94,13 +90,13 @@ def login_verify():
             moderator_not_found()
 
 
-def login_success_user():
+def login_success_user(username):
     global login_success_users_screen
     login_success_users_screen = Toplevel(main_screen)
     login_success_users_screen.title("Success")
     login_success_users_screen.geometry("150x100")
     Label(login_success_users_screen, text="Login Success").pack()
-    Button(login_success_users_screen, text="OK", command=delete_login_success_users).pack()
+    Button(login_success_users_screen, text="OK", command=delete_login_success_users(username)).pack()
 
 def login_success_moderators():
     global login_success_moderators_screen
@@ -125,9 +121,11 @@ def moderator_not_found():
     Label(moderator_not_found_screen, text="Moderator Not Found").pack()
     Button(moderator_not_found_screen, text="OK", command=delete_moderator_not_found_screen).pack()
 
-def delete_login_success_users():
+def delete_login_success_users(username):
+    username
     login_success_users_screen.destroy()
-    user_screen()
+    username
+    user_screen(username)
 
 def delete_login_success_moderators():
     login_success_moderators_screen.destroy()
@@ -144,7 +142,7 @@ def add_advertisement():
     # todo add functionality
     print('add advertisement')
 
-def user_screen():
+def user_screen(username):
     # todo add stuff
 
     def search_button_click():
@@ -159,6 +157,9 @@ def user_screen():
         print('delete button clicked')
 
     main_screen.destroy()
+
+
+
     global user_screen
     user_screen = Tk()  # Create instance
     user_screen.geometry("850x600")
@@ -223,18 +224,35 @@ def user_screen():
 
     Button(optionsframe, text="GO", command=search_button_click).grid(row=1, column=3, sticky="W")  # Search button
 
+    def build_table(advertisements,data):
+
+        advertisements['columns'] = ('title', 'description', 'price', 'date')
+        advertisements['show'] = 'headings'
+        advertisements.heading('title', text='Title')
+        advertisements.column('title', width=170)
+        advertisements.heading('description', text='Description')
+        advertisements.column('description', width=125)
+        advertisements.heading('price', text='Price')
+        advertisements.column('price', width=125)
+        advertisements.heading('date', text='Date')
+        advertisements.column('date', width=150)
+        for row in data:
+            date1 = row[3]
+            date1 = date1.strftime("%y/ %m/ %d")
+            advertisements.insert('', 'end', values=(row[0],row[1],row[2],date1))
+        advertisements.pack()
+
+    global advertisements
     advertisements = ttk.Treeview(tableframe)  # advertisements Ads Table
-    advertisements['columns'] = ('title', 'description', 'price', 'date')
-    advertisements['show'] = 'headings'
-    advertisements.heading('title', text='Title')
-    advertisements.column('title', width=125)
-    advertisements.heading('description', text='Description')
-    advertisements.column('description', width=125)
-    advertisements.heading('price', text='Price')
-    advertisements.column('price', width=125)
-    advertisements.heading('date', text='Date')
-    advertisements.column('date', width=125)
-    advertisements.pack()
+
+    my_cursor = mydb.cursor()
+    status = 'Active';
+    sqlstatement = "SELECT AdvTitle, AdvDetails, price, AdvDateTime FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE B.StatusName =  %(StatusName)s;"
+    my_cursor.execute(sqlstatement, {"StatusName": status})
+    result = my_cursor.fetchall()
+    build_table(advertisements,result)
+
+
 
     ## My advertisements Tab
     optionsframe2 = ttk.Frame(tab2)
@@ -247,22 +265,36 @@ def user_screen():
     Button(optionsframe2, text="EDIT", command=edit_button_click, width= 20, height=4).grid(row=0, column= 0, padx=20 , pady=5)  # Edit  button
     Button(optionsframe2, text="DELETE", command=delete_button_click, width = 20,  height=4).grid(row=0, column=1, padx=20, pady=5 )  # Delete Search button
 
-    my_advertisements = ttk.Treeview(tableframe2)  # Unclaimed Ads Table
-    my_advertisements['columns'] = ('id','title', 'description','status', 'price', 'date')
-    my_advertisements['show'] = 'headings'
-    my_advertisements.heading('id', text='ID')
-    my_advertisements.column('id', width=125)
-    my_advertisements.heading('title', text='Title')
-    my_advertisements.column('title', width=125)
-    my_advertisements.heading('description', text='Description')
-    my_advertisements.column('description', width=125)
-    my_advertisements.heading('status', text='Status')
-    my_advertisements.column('status', width=125)
-    my_advertisements.heading('price', text='Price')
-    my_advertisements.column('price', width=125)
-    my_advertisements.heading('date', text='Date')
-    my_advertisements.column('date', width=125)
-    my_advertisements.pack()
+    def build_table2(my_advertisements, data1):
+
+        my_advertisements['columns'] = ('id','title', 'description','status', 'price', 'date')
+        my_advertisements['show'] = 'headings'
+        my_advertisements.heading('id', text='ID')
+        my_advertisements.column('id', width=125)
+        my_advertisements.heading('title', text='Title')
+        my_advertisements.column('title', width=125)
+        my_advertisements.heading('description', text='Description')
+        my_advertisements.column('description', width=125)
+        my_advertisements.heading('status', text='Status')
+        my_advertisements.column('status', width=125)
+        my_advertisements.heading('price', text='Price')
+        my_advertisements.column('price', width=125)
+        my_advertisements.heading('date', text='Date')
+        my_advertisements.column('date', width=125)
+        for row in data1:
+            date2 = row[5]
+            date2 = date2.strftime("%y/ %m/ %d")
+            my_advertisements.insert('', 'end', values=(row[0], row[1], row[2], row[3],row[4], date2))
+        my_advertisements.pack()
+
+    global my_advertisements
+    my_advertisements = ttk.Treeview(tableframe2)  # advertisements Ads Table
+
+    my_cursor = mydb.cursor()
+    sqlstatement = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
+    my_cursor.execute(sqlstatement, {"User_ID": username})
+    result = my_cursor.fetchall()
+    build_table2(advertisements, result)
 
 
     tab_control.pack(expand=1, fill="both")
