@@ -62,6 +62,7 @@ def login_verify():
     username = username_verify.get()
     password = userpassword_verify.get()
     user_type = user_type_verify.get()
+    userpassword_login_entry.delete(0, END)
     username_login_entry.delete(0, END)
     my_cursor = mydb.cursor()
 
@@ -143,10 +144,11 @@ def add_advertisement():
 
 def user_screen(username):
     # todo add stuff
-
+    global search_entry
     def search_button_click2():
         category = category_verify.get()
         period = period_verify.get()
+        search = search_verify1.get()
         wherecluase = ''
         if category != 'All':
             wherecluase += ' AND C.CatName = \'' + category + '\''
@@ -159,10 +161,11 @@ def user_screen(username):
             elif period == 'Past Month':
                 past_date = datetime.date.today() - datetime.timedelta(days=30)
             elif period == 'Past Year':
-                past_date = datetime.date.today() - datetime.timedelta(days=1000)
+                past_date = datetime.date.today() - datetime.timedelta(days=365)
 
             wherecluase += ' AND (A.AdvDateTime BETWEEN \' ' + past_date.strftime('%y-%m-%d') + '\' AND \'' + today.strftime('%y-%m-%d') +'\')'
-
+        if search != '':
+            wherecluase += ' AND A.AdvDetails or A.AdvTitle LIKE \'%' + search + '%\''
         build_advertisements_table(advertisements, wherecluase)
     def edit_button_click():
         # todo add functionality
@@ -431,6 +434,7 @@ def main_account_screen():
     main_screen.geometry("300x250")
     main_screen.title("Account Login")
     global username_login_entry
+    global userpassword_login_entry
     global username_verify
     global userpassword_verify
     global user_type_verify
