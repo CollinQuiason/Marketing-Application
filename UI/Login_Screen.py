@@ -282,7 +282,7 @@ def user_screen(username):
     Button(optionsframe2, text="EDIT", command=edit_button_click, width= 20, height=4).grid(row=0, column= 0, padx=20 , pady=5)  # Edit  button
     Button(optionsframe2, text="DELETE", command=delete_button_click, width = 20,  height=4).grid(row=0, column=1, padx=20, pady=5 )  # Delete Search button
 
-    def build_table2(table, records):
+    def build_my_advertisements_table(table, records):
         for row in table.get_children():
             table.delete(row)
 
@@ -311,7 +311,7 @@ def user_screen(username):
     sqlstatement2 = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
     my_cursor.execute(sqlstatement2, {"User_ID": username})
     result = my_cursor.fetchall()
-    build_table2(my_advertisements, result)
+    build_my_advertisements_table(my_advertisements, result)
 
     tab_control.pack(expand=1, fill="both")
     user_screen.mainloop()
@@ -321,6 +321,7 @@ def moderator_screen():
 
     def search_button_click():
         print("Search Button Clicked")
+
     def claimad_button_click():
         print("Ad Claim Button Clicked")
 
