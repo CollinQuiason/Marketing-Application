@@ -113,6 +113,7 @@ def user_not_found():
     user_not_found_screen.geometry("150x100")
     Label(user_not_found_screen, text="User Not Found").pack()
     Button(user_not_found_screen, text="OK", command=delete_user_not_found_screen).pack()
+
 def moderator_not_found():
     global moderator_not_found_screen
     moderator_not_found_screen = Toplevel(main_screen)
@@ -122,9 +123,7 @@ def moderator_not_found():
     Button(moderator_not_found_screen, text="OK", command=delete_moderator_not_found_screen).pack()
 
 def delete_login_success_users(username):
-    username
     login_success_users_screen.destroy()
-    username
     user_screen(username)
 
 def delete_login_success_moderators():
@@ -145,10 +144,26 @@ def add_advertisement():
 def user_screen(username):
     # todo add stuff
 
-    def search_button_click():
-        # todo add functionality
-        print("Search Button Clicked")
+    def search_button_click2():
+        category = category_verify.get()
+        period = period_verify.get()
+        wherecluase = ''
+        if category != 'All':
+            wherecluase += ' AND C.CatName = \'' + category + '\''
+        if period != 'Forever':
+            today = datetime.date.today()
+            if period == 'Past Day':
+                past_date = datetime.date.today() - datetime.timedelta(days=1)
+            elif period == 'Past Week':
+                past_date = datetime.date.today() - datetime.timedelta(days=7)
+            elif period == 'Past Month':
+                past_date = datetime.date.today() - datetime.timedelta(days=30)
+            elif period == 'Past Year':
+                past_date = datetime.date.today() - datetime.timedelta(days=1000)
 
+            wherecluase += ' AND (A.AdvDateTime BETWEEN \' ' + past_date.strftime('%y-%m-%d') + '\' AND \'' + today.strftime('%y-%m-%d') +'\')'
+
+        build_advertisements_table(advertisements, wherecluase)
     def edit_button_click():
         # todo add functionality
         print('Edit button clicked')
@@ -167,7 +182,8 @@ def user_screen(username):
 
     global search_verify1
     search_verify1 = StringVar(user_screen)
-
+    global wherecluase
+    wherecluase =''
     Label(text="User Tab", bg="green", width="300", height="2", font=("Calibri", 22)).pack()
     Label(text="").pack()
     Button(user_screen, text="Add Advertisements", command=add_advertisement, width=40, height=4).pack()
@@ -178,8 +194,8 @@ def user_screen(username):
 
     tab_control.add(tab1, text='Advertisements ')  # Add the tab
     tab_control.add(tab2, text='My Advertisements')  # Add the tab
-    ## Advertisements tab
 
+    ## Advertisements tab
     optionsframe = ttk.Frame(tab1)
     optionsframe.pack(side="top", fill="x")  # Split tab into two frames top and bottom
     tableframe = ttk.Frame(tab1)  # Split tab into two frames top and bottom
@@ -193,10 +209,11 @@ def user_screen(username):
     category_options = [  # Category options menu
         "All",
         "Cars and Trucks",
-        "Housing",
+        "Houseing",
         "Electronics",
         "Child Care"
     ]
+    global category_verify
     category_verify = StringVar(optionsframe)
     category_verify.set(category_options[0])  # default value
     category_entry = OptionMenu(optionsframe, category_verify, *category_options)
@@ -211,9 +228,10 @@ def user_screen(username):
         "Past Month",
         "Past Year"
     ]
+    global period_verify
     period_verify = StringVar(optionsframe)
     period_verify.set(period_options[0])  # default value
-    period_entry = OptionMenu(optionsframe, category_verify, *period_options)
+    period_entry = OptionMenu(optionsframe, period_verify, *period_options)
     Label(optionsframe, text="Period").grid(row=0, column=1, padx=20)
     period_entry.grid(row=1, column=1)
     Label(text="").pack()
@@ -222,36 +240,35 @@ def user_screen(username):
     Label(optionsframe, text="Title, Description:").grid(row=0, column=2, padx=40)  # Search bar in tab 1
     search_entry = Entry(optionsframe, textvariable=search_verify1).grid(row=1, column=2, padx=40)
 
-    Button(optionsframe, text="GO", command=search_button_click).grid(row=1, column=3, sticky="W")  # Search button
+    status = 'Active'
+    sqlstatement = "SELECT AdvTitle, AdvDetails, price, AdvDateTime FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE B.StatusName =  %(StatusName)s "
+    Button(optionsframe, text="GO", command=search_button_click2).grid(row=1, column=3, sticky="W")  # Search button
 
-    def build_table(advertisements,data):
+    def build_advertisements_table(table,where):
+        for row in table.get_children():
+            table.delete(row)
+        my_cursor = mydb.cursor()
+        tempsql = sqlstatement + where
+        my_cursor.execute(tempsql, {"StatusName": status})
+        records = my_cursor.fetchall()
 
-        advertisements['columns'] = ('title', 'description', 'price', 'date')
-        advertisements['show'] = 'headings'
-        advertisements.heading('title', text='Title')
-        advertisements.column('title', width=170)
-        advertisements.heading('description', text='Description')
-        advertisements.column('description', width=125)
-        advertisements.heading('price', text='Price')
-        advertisements.column('price', width=125)
-        advertisements.heading('date', text='Date')
-        advertisements.column('date', width=150)
-        for row in data:
-            date1 = row[3]
-            date1 = date1.strftime("%y/ %m/ %d")
-            advertisements.insert('', 'end', values=(row[0],row[1],row[2],date1))
-        advertisements.pack()
+        for row in records:
+            table.insert('', 'end', values=(row[0],row[1],row[2],row[3].strftime("%y/ %m/ %d")))
+            table.pack()
 
     global advertisements
-    advertisements = ttk.Treeview(tableframe)  # advertisements Ads Table
-
-    my_cursor = mydb.cursor()
-    status = 'Active';
-    sqlstatement = "SELECT AdvTitle, AdvDetails, price, AdvDateTime FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE B.StatusName =  %(StatusName)s;"
-    my_cursor.execute(sqlstatement, {"StatusName": status})
-    result = my_cursor.fetchall()
-    build_table(advertisements,result)
-
+    advertisements = ttk.Treeview(tableframe)  # advertisements Table
+    advertisements['columns'] = ('title', 'description', 'price', 'date')
+    advertisements['show'] = 'headings'
+    advertisements.heading('title', text='Title')
+    advertisements.column('title', width=200)
+    advertisements.heading('description', text='Description')
+    advertisements.column('description', width=280)
+    advertisements.heading('price', text='Price')
+    advertisements.column('price', width=125)
+    advertisements.heading('date', text='Date')
+    advertisements.column('date', width=150)
+    build_advertisements_table(advertisements, wherecluase)
 
 
     ## My advertisements Tab
@@ -265,41 +282,39 @@ def user_screen(username):
     Button(optionsframe2, text="EDIT", command=edit_button_click, width= 20, height=4).grid(row=0, column= 0, padx=20 , pady=5)  # Edit  button
     Button(optionsframe2, text="DELETE", command=delete_button_click, width = 20,  height=4).grid(row=0, column=1, padx=20, pady=5 )  # Delete Search button
 
-    def build_table2(my_advertisements, data1):
+    def build_table2(table, records):
+        for row in table.get_children():
+            table.delete(row)
 
-        my_advertisements['columns'] = ('id','title', 'description', 'price','status', 'date')
-        my_advertisements['show'] = 'headings'
-        my_advertisements.heading('id', text='ID')
-        my_advertisements.column('id', width=40)
-        my_advertisements.heading('title', text='Title')
-        my_advertisements.column('title', width=125)
-        my_advertisements.heading('description', text='Description')
-        my_advertisements.column('description', width=250)
-        my_advertisements.heading('price', text='Price')
-        my_advertisements.column('price', width=75)
-        my_advertisements.heading('status', text='Status')
-        my_advertisements.column('status', width=80)
-        my_advertisements.heading('date', text='Date')
-        my_advertisements.column('date', width=125)
-        for row in data1:
-            date2 = row[5]
-            date2 = date2.strftime("%y/ %m/ %d")
-            my_advertisements.insert('', 'end', values=(row[0], row[1], row[2], row[3],row[4], date2))
-        my_advertisements.pack()
+        for row in records:
+            table.insert('', 'end', values=(row[0], row[1], row[2], row[3],row[4], row[5].strftime("%y/ %m/ %d")))
+            table.pack()
 
     global my_advertisements
-    my_advertisements = ttk.Treeview(tableframe2)  # advertisements Ads Table
+    my_advertisements = ttk.Treeview(tableframe2)  # my_advertisements Table
+    my_advertisements['columns'] = ('id', 'title', 'description', 'price', 'status', 'date')
+    my_advertisements['show'] = 'headings'
+    my_advertisements.heading('id', text='ID')
+    my_advertisements.column('id', width=40)
+    my_advertisements.heading('title', text='Title')
+    my_advertisements.column('title', width=175)
+    my_advertisements.heading('description', text='Description')
+    my_advertisements.column('description', width=280)
+    my_advertisements.heading('price', text='Price')
+    my_advertisements.column('price', width=75)
+    my_advertisements.heading('status', text='Status')
+    my_advertisements.column('status', width=80)
+    my_advertisements.heading('date', text='Date')
+    my_advertisements.column('date', width=120)
 
     my_cursor = mydb.cursor()
-    sqlstatement = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
-    my_cursor.execute(sqlstatement, {"User_ID": username})
+    sqlstatement2 = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
+    my_cursor.execute(sqlstatement2, {"User_ID": username})
     result = my_cursor.fetchall()
     build_table2(my_advertisements, result)
 
-
     tab_control.pack(expand=1, fill="both")
     user_screen.mainloop()
-
 
 
 def moderator_screen():
@@ -341,7 +356,7 @@ def moderator_screen():
     category_options = [ # Category options menu
         "All",
         "Cars and Trucks",
-        "Housing",
+        "Houseing",
         "Electronics",
         "Child Care"
     ]
@@ -361,7 +376,7 @@ def moderator_screen():
     ]
     period_verify = StringVar(optionsframe)
     period_verify.set(period_options[0])  # default value
-    period_entry = OptionMenu(optionsframe, category_verify, *period_options)
+    period_entry = OptionMenu(optionsframe, period_verify, *period_options)
     Label(optionsframe, text="Period").grid(row = 1, column = 2, padx=20)
     period_entry.grid(row = 2, column = 2)
     Label(text="").pack()
@@ -414,7 +429,7 @@ def main_account_screen():
     main_screen = Tk()
     main_screen.geometry("300x250")
     main_screen.title("Account Login")
-
+    global username_login_entry
     global username_verify
     global userpassword_verify
     global user_type_verify
@@ -422,9 +437,6 @@ def main_account_screen():
     username_verify = StringVar()
     userpassword_verify = StringVar()
 
-    global username_login_entry
-    global userpassword_login_entry
-    global user_type_entry
 
 
     # create a Form label
