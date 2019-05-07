@@ -59,14 +59,17 @@ mydb = mysql.connector.connect(
 
 
 def login_verify():
+    # gets the variables needed
     username = username_verify.get()
     password = userpassword_verify.get()
     user_type = user_type_verify.get()
+    # clears out old entry boxes
     userpassword_login_entry.delete(0, END)
     username_login_entry.delete(0, END)
     my_cursor = mydb.cursor()
 
     if user_type == 'USER' :
+        # Querys database to make sure user is in database
         sqlstatement = "SELECT User_ID, UserPassword, UserSalt FROM Users WHERE User_ID = %(User_ID)s;"
         my_cursor.execute(sqlstatement, {"User_ID": username})
         list_of_users = my_cursor.fetchall()
@@ -79,6 +82,7 @@ def login_verify():
             user_not_found()
 
     else :
+        # Querys the Database to see if moderator is in there.
         sqlstatement = "SELECT User_ID FROM Moderators WHERE User_ID = %(User_ID)s;"
         my_cursor.execute(sqlstatement, {"User_ID": username})
         list_of_moderators = my_cursor.fetchall()
@@ -192,15 +196,18 @@ def add_advertisement():
 
 
 def user_screen(username):
-    # todo add stuff
+    # todo add advertisement, edit delete.
     global search_entry
     def search_button_click2():
+        # variables needed for SQL query
         category = category_verify.get()
         period = period_verify.get()
         search = search_verify1.get()
         wherecluase = ''
+        # adds the category filtering to where clause
         if category != 'All':
             wherecluase += ' AND C.CatName = \'' + category + '\''
+        # adds time period filtering to where clause
         if period != 'Forever':
             today = datetime.date.today()
             if period == 'Past Day':
@@ -213,8 +220,10 @@ def user_screen(username):
                 past_date = datetime.date.today() - datetime.timedelta(days=365)
 
             wherecluase += ' AND (A.AdvDateTime BETWEEN \' ' + past_date.strftime('%y-%m-%d') + '\' AND \'' + today.strftime('%y-%m-%d') +'\')'
+        # adds search filtering to where clause
         if search != '':
             wherecluase += ' AND A.AdvDetails or A.AdvTitle LIKE \'%' + search + '%\''
+        # rebuilds the table
         build_advertisements_table(advertisements, wherecluase)
     def edit_button_click():
         # todo add functionality
@@ -222,11 +231,10 @@ def user_screen(username):
     def delete_button_click():
         # todo add functionality
         print('delete button clicked')
-
+    # deletes the login screen
     main_screen.destroy()
 
-
-
+    # global variables declared
     global user_screen
     user_screen = Tk()  # Create instance
     user_screen.geometry("850x600")
@@ -236,6 +244,8 @@ def user_screen(username):
     search_verify1 = StringVar(user_screen)
     global wherecluase
     wherecluase =''
+
+    # title section
     Label(text="User Tab", bg="green", width="300", height="2", font=("Calibri", 22)).pack()
     Label(text="").pack()
     Button(user_screen, text="Add Advertisements", command=add_advertisement, width=40, height=4).pack()
@@ -292,18 +302,21 @@ def user_screen(username):
     Label(optionsframe, text="Title, Description:").grid(row=0, column=2, padx=40)  # Search bar in tab 1
     search_entry = Entry(optionsframe, textvariable=search_verify1).grid(row=1, column=2, padx=40)
 
+    # SQL statement to pull in the defualt data
     status = 'Active'
     sqlstatement = "SELECT AdvTitle, AdvDetails, price, AdvDateTime FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE B.StatusName =  %(StatusName)s "
     Button(optionsframe, text="GO", command=search_button_click2).grid(row=1, column=3, sticky="W")  # Search button
-
+    # this functions builds the Advertisement table given the table name and where clause
     def build_advertisements_table(table,where):
+        # clears out old data
         for row in table.get_children():
             table.delete(row)
+        # sets up Query
         my_cursor = mydb.cursor()
         tempsql = sqlstatement + where
         my_cursor.execute(tempsql, {"StatusName": status})
         records = my_cursor.fetchall()
-
+        # inserts updated records
         for row in records:
             table.insert('', 'end', values=(row[0],row[1],row[2],row[3].strftime("%y/ %m/ %d")))
             table.pack()
