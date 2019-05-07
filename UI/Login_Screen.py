@@ -41,9 +41,9 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="root", # this will be different depening on your database
+ password="Password", # this will be different depening on your database
  database="Project2",
- port = 8889 #3306 ,
+ port = 3306 #8889 #3306 ,
  #auth_plugin='mysql_native_password'
 )
 
@@ -485,7 +485,38 @@ def moderator_screen():
     unclaimedAdsTable.column('date', width=125)
     unclaimedAdsTable.pack()
 
-    
+    #This is the start for the my advertisements tab inside of the moderator
+
+    optionsframe2 = ttk.Frame(tab2)
+    optionsframe2.pack(side="top", fill="x")  # Split tab into two frames top and bottom for My Advertisements
+
+    tableframe2 = ttk.Frame(tab2)  # Split tab into two frames top and bottom for My Advertisements
+    tableframe2.pack(side="bottom", fill="x")
+
+    rowsize, columnsize = optionsframe.grid_size()
+    Button(optionsframe2, text="Approve", command=claimad_button_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
+
+    myAdsTable = ttk.Treeview(tableframe2)  # Unclaimed Ads Table
+    myAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date')
+    # unclaimedAdsTable.heading("#0", text='ID', anchor='w')
+    # unclaimedAdsTable.column("#0", anchor="w")
+    myAdsTable['show'] = 'headings'
+    myAdsTable.heading('id', text='ID')
+    myAdsTable.column('id', width=125)
+    myAdsTable.heading('title', text='Title')
+    myAdsTable.column('title', width=125)
+    myAdsTable.heading('description', text='Description')
+    myAdsTable.column('description', width=125)
+    myAdsTable.heading('price', text='Price')
+    myAdsTable.column('price', width=125)
+    myAdsTable.heading('status', text='Status')
+    myAdsTable.column('status', width=125)
+    myAdsTable.heading('date', text='Date')
+    myAdsTable.column('date', width=125)
+    myAdsTable.pack()
+
+
+
 
 
     tab_control.pack(expand=1, fill="both")  # Pack to make visible
