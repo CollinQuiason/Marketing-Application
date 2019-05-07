@@ -364,6 +364,11 @@ def user_screen(username):
     my_cursor.execute(sqlstatement2, {"User_ID": username})
     result = my_cursor.fetchall()
     build_my_advertisements_table(my_advertisements, result)
+    def selectrow(event):
+        item = my_advertisements.item(my_advertisements.selection())
+        print(item)
+
+    my_advertisements.bind('<ButtonRelease-1>', selectrow)
 
     tab_control.pack(expand=1, fill="both")
     user_screen.mainloop()
