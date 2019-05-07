@@ -41,9 +41,9 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="root", # this will be different depening on your database
+ password="password", # this will be different depening on your database
  database="Project2",
- port = 8889 #3306 ,
+ port = 3306#8889 ,
  #auth_plugin='mysql_native_password'
 )
 
@@ -394,7 +394,20 @@ def moderator_screen():
 
     def claimad_button_click():
         print("Ad Claim Button Clicked")
+    def build_unclaimed_ads_table(table):
+        # clears out old data
+        for row in table.get_children():
+            table.delete(row)
+        # sets up Query
+        my_cursor = mydb.cursor()
 
+        sqlstatement = "SELECT Advertisements_ID, AdvTitle, AdvDetails, price, AdvDateTime, User_ID FROM advertisements WHERE Moderator_ID = \'null\'"
+        my_cursor.execute(sqlstatement)
+        records = my_cursor.fetchall()
+        # inserts updated records
+        for row in records:
+            table.insert('', 'end', values=(row[0],row[1],row[2],row[3],row[4].strftime("%y/ %m/ %d"),row[5]))
+        table.pack()
     # todo add stuff
     main_screen.destroy()
     global moderator_screen
@@ -483,7 +496,7 @@ def moderator_screen():
     unclaimedAdsTable.column('status', width=125)
     unclaimedAdsTable.heading('date', text='Date')
     unclaimedAdsTable.column('date', width=125)
-    unclaimedAdsTable.pack()
+    build_unclaimed_ads_table(unclaimedAdsTable)
 
     
 
