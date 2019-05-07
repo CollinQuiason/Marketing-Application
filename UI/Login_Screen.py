@@ -137,10 +137,59 @@ def delete_user_not_found_screen():
 
 def delete_moderator_not_found_screen():
     moderator_not_found_screen.destroy()
+def create_ad():
+    # todo query the database and create the entry
+    print("create button clicked")
 
 def add_advertisement():
     # todo add functionality
-    print('add advertisement')
+    global add_advertisement_screen
+    add_advertisement_screen = Tk()
+    add_advertisement_screen.geometry("300x400")
+    add_advertisement_screen.title("Add Advetisement")
+
+    # title entry
+    global adv_title_verify
+    adv_title_verify = StringVar(add_advertisement_screen)
+    Label(add_advertisement_screen, text="Title ").pack()
+    adv_title_entry = Entry(add_advertisement_screen, textvariable=adv_title_verify)
+    adv_title_entry.pack()
+    Label(text="").pack()
+    # description entry
+    global adv_descp_verify
+    adv_descp_verify = StringVar(add_advertisement_screen)
+    Label(add_advertisement_screen, text="Description ").pack()
+    adv_descp_entry = Entry(add_advertisement_screen, textvariable=adv_descp_verify, width="30",)
+    adv_descp_entry.pack()
+    Label(text="").pack()
+    type_options = [  # Category options menu
+        "Cars and Trucks",
+        "Houseing",
+        "Electronics",
+        "Child Care"
+    ]
+    # category Selection
+    global ad_type_verify
+    Label(add_advertisement_screen, text="Category ").pack()
+    ad_type_verify = StringVar(add_advertisement_screen)
+    ad_type_verify.set(type_options[0])  # default value
+    ad_type_entry = OptionMenu(add_advertisement_screen, ad_type_verify, *type_options)
+    ad_type_entry.pack()
+    Label(text="").pack()
+    # price entry
+    global adv_price_verify
+    adv_price_verify = StringVar(add_advertisement_screen)
+    Label(add_advertisement_screen, text="Price ").pack()
+    adv_price_entry = Entry(add_advertisement_screen, textvariable=adv_price_verify)
+    adv_price_entry.pack()
+    Label(text="").pack()
+    Label(text="").pack()
+
+    # create Advertisement  Button
+    create_ad_button = Button(add_advertisement_screen,text="Create AD ", height="3", width="30", command=create_ad)
+    create_ad_button.pack()
+
+
 
 def user_screen(username):
     # todo add stuff
