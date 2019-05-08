@@ -41,7 +41,7 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="password", # this will be different depening on your database
+ password="Password", # this will be different depening on your database
  database="Project2",
  port = 3306#8889 ,
  #auth_plugin='mysql_native_password'
@@ -413,12 +413,12 @@ def moderator_screen(moderator_username):
         unclaimedAdsTable.grid()
         selectedItem = selectrow_mod(unclaimedAdsTable)
 
-        print('Edit button clicked')
         sqlstatement27 = "UPDATE Advertisements SET Moderator_ID = %(moderator_id)s WHERE Advertisements_ID = %(adID)s"
         my_cursor = mydb.cursor()
         my_cursor.execute(sqlstatement27, {"adID": selectedItem['values'][0], "moderator_id": moderator_username})
         mydb.commit()
         initialize_unclaimed_ads_table(unclaimedAdsTable)
+        build_my_ad_table(myAdsTable)
     def search_button_click():
         # variables needed for SQL query
         category = category_verify_moderator.get()
@@ -567,6 +567,24 @@ def moderator_screen(moderator_username):
     initialize_unclaimed_ads_table(unclaimedAdsTable)
 
     #This is the start for the my advertisements tab inside of the moderator
+    def selectrow_mod(tableparam):
+        item = tableparam.item(tableparam.selection())
+        return item
+
+    def approved_botton_click():
+       myAdsTable.bind('<ButtonRelease-1>', selectrow_mod(myAdsTable))
+       myAdsTable.grid()
+       selectedItem = selectrow_mod(myAdsTable)
+
+       sqlstatement33 = "UPDATE Advertisements SET Status_ID = \'AC\' WHERE Advertisements_ID = %(adID)s"
+       my_cursor = mydb.cursor()
+       print(selectedItem['values'][0])
+       my_cursor.execute(sqlstatement33, {"adID": selectedItem['values'][0]})
+       mydb.commit()
+       build_my_ad_table(myAdsTable)
+
+    print ("Button Clicked")
+
 
     optionsframe2 = ttk.Frame(tab2)
     optionsframe2.pack(side="top", fill="x")  # Split tab into two frames top and bottom for My Advertisements
@@ -575,24 +593,22 @@ def moderator_screen(moderator_username):
     tableframe2.pack(side="bottom", fill="x")
 
     rowsize, columnsize = optionsframe.grid_size()
-    Button(optionsframe2, text="Approve", command=claimad_button_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
+    Button(optionsframe2, text="Approve", command=approved_botton_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
 
 
     # this functions builds the Advertisement table given the table name and where clause
 
     status = 'Active'
-    sqlstatement2 = "SELECT A.Moderator_ID,A.AdvTitle, A.AdvDetails, A.price,A.Status_ID, A.AdvDateTime, A.Advertisements_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE B.StatusName =  %(StatusName)s "
+    sqlstatement2 = "SELECT A.Advertisements_ID,A.AdvTitle, A.AdvDetails, A.price,A.Status_ID, A.AdvDateTime, A.Advertisements_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE A.Moderator_ID =  %(moderator_id)s "
 
-    wherecluase = ''
-
-    def build_my_ad_table(table, where):
+    def build_my_ad_table(table):
         # clears out old data
         for row in table.get_children():
             table.delete(row)
         # sets up Query
         my_cursor1 = mydb.cursor()
-        tempsql = sqlstatement2 + where
-        my_cursor1.execute(tempsql, {"StatusName": status})
+        tempsql = sqlstatement2
+        my_cursor1.execute(tempsql, {"moderator_id": moderator_username})
         records = my_cursor1.fetchall()
         # inserts updated records
         for row in records:
@@ -619,7 +635,7 @@ def moderator_screen(moderator_username):
     myAdsTable.heading('username', text='Username')
     myAdsTable.column('username', width=125)
     myAdsTable.pack()
-    build_my_ad_table(myAdsTable, wherecluase)
+    build_my_ad_table(myAdsTable)
 
 
 
