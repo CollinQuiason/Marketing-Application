@@ -143,6 +143,7 @@ def delete_moderator_not_found_screen():
     moderator_not_found_screen.destroy()
 def create_ad():
     # todo query the database and create the entry
+
     print("create button clicked")
 
 def add_advertisement():
@@ -193,13 +194,6 @@ def add_advertisement():
     create_ad_button = Button(add_advertisement_screen,text="Create AD ", height="3", width="30", command=create_ad)
     create_ad_button.pack()
 
-def edit_advertisement(selectedItem):
-    # todo add functionality
-    global edit_advertisement_screen
-    edit_advertisement_screen = Tk()
-    edit_advertisement_screen.geometry("300x400")
-    edit_advertisement_screen.title("Edit Advertisement")
-    row_data = selectedItem['values']
 
 
 def user_screen(username):
@@ -232,6 +226,86 @@ def user_screen(username):
             wherecluase += ' AND A.AdvTitle LIKE \'%' + search + '%\' OR A.AdvDetails LIKE \'%'  + search + '%\' '
         # rebuilds the table
         build_advertisements_table(advertisements, wherecluase)
+
+    def edit_advertisement(selectedItem):
+        # todo add functionality
+        global edit_advertisement_screen
+        edit_advertisement_screen = Tk()
+        edit_advertisement_screen.geometry("300x400")
+        edit_advertisement_screen.title("Edit Advertisement")
+        row_data = selectedItem['values']
+        mycursor = mydb.cursor()
+        sqlstatement = "SELECT A.User_ID, c.CatName, A.Advertisements_ID FROM Advertisements A  INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE a.AdvTitle =  %(title)s"
+        mycursor.execute(sqlstatement, {"title": row_data[1]})
+        global myresult1
+        myresult1 = mycursor.fetchall()
+
+        # title
+        global ad_title_verify4
+        ad_title_verify4 = StringVar(edit_advertisement_screen)
+        ad_title_verify4.set(row_data[1])
+        Label(edit_advertisement_screen, text="Title ").pack()
+        ad_title_entry = Entry(edit_advertisement_screen, textvariable=ad_title_verify4)
+        ad_title_entry.pack()
+        Label(text="").pack()
+
+        # description entry
+        global adv_desc_verify4
+        adv_desc_verify4 = StringVar(edit_advertisement_screen)
+        adv_desc_verify4.set(row_data[2])
+        Label(edit_advertisement_screen, text="Description ").pack()
+        adv_desc_entry = Entry(edit_advertisement_screen, textvariable=adv_desc_verify4, width="30", )
+        adv_desc_entry.pack()
+        Label(text="").pack()
+        global ad_type_verify4
+        type_options = [  # Category options menu
+            "Cars and Trucks",
+            "Houseing",
+            "Electronics",
+            "Child Care"
+        ]
+        # category Selection
+        Label(edit_advertisement_screen, text="Category ").pack()
+        ad_type_verify4 = StringVar(edit_advertisement_screen)
+        ad_type_verify4.set(myresult1[0][1])  # default value
+        ad_type_entry = OptionMenu(edit_advertisement_screen, ad_type_verify4, *type_options)
+        ad_type_entry.pack()
+        Label(text="").pack()
+
+        # price entry
+        global adv_price_verify2
+        adv_price_verify2 = StringVar(edit_advertisement_screen)
+        adv_price_verify2.set(row_data[3])
+
+        Label(edit_advertisement_screen, text="Price ").pack()
+        adv_price_entry = Entry(edit_advertisement_screen, textvariable=adv_price_verify2, width="30", )
+        adv_price_entry.pack()
+        Label(text="").pack()
+
+        #  Edit Advertisement Button
+
+        edit_ad_button = Button(edit_advertisement_screen, text="Edit Ad", height="3", width="30", command=edit_ad_button2)
+        edit_ad_button.pack()
+
+
+    def edit_ad_button2():
+        temp = myresult1
+
+        t = ad_title_verify4.get()
+        d = adv_desc_verify4.get()
+        c = ad_type_verify4.get()
+        newprice = float(adv_price_verify2.get())
+        mycursor = mydb.cursor()
+        updateSQL = 'UPDATE Advertisements SET AdvTitle = %(T)s,AdvDetails = %(D)s, Category_ID = (SELECT Category_ID FROM Categories WHERE CatName = %(C)s),price = %(P)s WHERE Advertisements_ID = %(ID)s'
+
+        mycursor.execute(updateSQL, {"T": t, "D": d, "C": c,
+                                     "P": newprice, "ID": temp[0][2]})
+        mydb.commit()
+        close_edit()
+    def close_edit():
+        edit_advertisement_screen.destroy()
+        build_my_advertisements_table(my_advertisements)
+
     def selectrow():
         item = my_advertisements.item(my_advertisements.selection())
         return item
