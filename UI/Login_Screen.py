@@ -405,24 +405,62 @@ def user_screen(username):
 def moderator_screen():
 
     def search_button_click():
-        print("Search Button Clicked")
+        # variables needed for SQL query
+        category = category_verify_moderator.get()
+        period = period_verify_moderator.get()
+        search = search_verify_moderator.get()
+        wherecluase = ''
+        # adds the category filtering to where clause
+        if category != 'All':
+            wherecluase += ' AND C.CatName = \'' + category + '\''
+        # adds time period filtering to where clause
+        if period != 'Forever':
+            today = datetime.date.today()
+            if period == 'Past Day':
+                past_date = datetime.date.today() - datetime.timedelta(days=1)
+            elif period == 'Past Week':
+                past_date = datetime.date.today() - datetime.timedelta(days=7)
+            elif period == 'Past Month':
+                past_date = datetime.date.today() - datetime.timedelta(days=30)
+            elif period == 'Past Year':
+                past_date = datetime.date.today() - datetime.timedelta(days=365)
+
+            wherecluase += ' AND (A.AdvDateTime BETWEEN \' ' + past_date.strftime('%y-%m-%d') + '\' AND \'' + today.strftime('%y-%m-%d') +'\')'
+        # adds search filtering to where clause
+        if search != '':
+            wherecluase += ' AND A.AdvDetails LIKE \'%' + search + '%\' OR A.AdvTitle LIKE \'%' + search + '%\''
+        # rebuilds the table
+        build_unclaimed_ads_table(unclaimedAdsTable, wherecluase)
 
     def claimad_button_click():
         print("Ad Claim Button Clicked")
-    def build_unclaimed_ads_table(table):
+    def initialize_unclaimed_ads_table(table):
         # clears out old data
         for row in table.get_children():
             table.delete(row)
         # sets up Query
         my_cursor = mydb.cursor()
 
-        sqlstatement = "SELECT Advertisements_ID, AdvTitle, AdvDetails, price, AdvDateTime, User_ID FROM advertisements WHERE Moderator_ID = \'null\'"
+        sqlstatement = "SELECT Advertisements_ID, AdvTitle, AdvDetails, price, AdvDateTime, User_ID FROM advertisements WHERE Moderator_ID IS NULL"
         my_cursor.execute(sqlstatement)
         records = my_cursor.fetchall()
         # inserts updated records
         for row in records:
             table.insert('', 'end', values=(row[0],row[1],row[2],row[3],row[4].strftime("%y/ %m/ %d"),row[5]))
         table.pack()
+    def build_unclaimed_ads_table(table,where):
+        # clears out old data
+        for row in table.get_children():
+            table.delete(row)
+        # sets up Query
+        my_cursor = mydb.cursor()
+        tempsql = sqlstatement3 + where
+        my_cursor.execute(tempsql)
+        records = my_cursor.fetchall()
+        # inserts updated records
+        for row in records:
+            table.insert('', 'end', values=(row[0],row[1],row[2],row[3], row[4].strftime("%y/ %m/ %d"), row[5]))
+            table.pack()
     # todo add stuff
     main_screen.destroy()
     global moderator_screen
@@ -432,7 +470,7 @@ def moderator_screen():
     moderator_screen.title("Moderator Tab")
 
     global search_verify
-    search_verify = StringVar(moderator_screen)
+    search_verify_moderator = StringVar(moderator_screen)
 
     form_label = Label(text="Moderator Tab", bg="blue", width="300", height="2", font=("Calibri", 22))
     form_label.pack()
@@ -459,9 +497,9 @@ def moderator_screen():
         "Electronics",
         "Child Care"
     ]
-    category_verify = StringVar(optionsframe)
-    category_verify.set(category_options[0])  # default value
-    category_entry = OptionMenu(optionsframe, category_verify, *category_options)
+    category_verify_moderator = StringVar(optionsframe)
+    category_verify_moderator.set(category_options[0])  # default value
+    category_entry = OptionMenu(optionsframe, category_verify_moderator, *category_options)
     Label(optionsframe, text="Category").grid(row = 1, column = 1, padx=20)
     category_entry.grid(row = 2, column = 1)
     Label(text="").pack()
@@ -473,16 +511,17 @@ def moderator_screen():
         "Past Month",
         "Past Year"
     ]
-    period_verify = StringVar(optionsframe)
-    period_verify.set(period_options[0])  # default value
-    period_entry = OptionMenu(optionsframe, period_verify, *period_options)
+    period_verify_moderator = StringVar(optionsframe)
+    period_verify_moderator.set(period_options[0])  # default value
+    period_entry = OptionMenu(optionsframe, period_verify_moderator, *period_options)
     Label(optionsframe, text="Period").grid(row = 1, column = 2, padx=20)
     period_entry.grid(row = 2, column = 2)
     Label(text="").pack()
 
     Label(optionsframe, text="Title, Description:").grid(row = 1, column = 3, padx = 40)                    #Search bar in tab 1
-    search_entry = Entry(optionsframe, textvariable = search_verify).grid(row = 2, column = 3, padx = 40)
+    search_entry = Entry(optionsframe, textvariable = search_verify_moderator).grid(row = 2, column = 3, padx = 40)
 
+    sqlstatement3 = "SELECT  A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, A.AdvDateTime, A.User_ID  FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE A.Moderator_ID IS NULL"
     Button(optionsframe, text="GO", command=search_button_click).grid(row = 2, column = 4, sticky = "W") #Search button
 
 
@@ -493,9 +532,9 @@ def moderator_screen():
 
 
 
-
+    global unclaimedAdsTable
     unclaimedAdsTable = ttk.Treeview(tableframe) #Unclaimed Ads Table
-    unclaimedAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date')
+    unclaimedAdsTable['columns'] = ('id', 'title', 'description', 'price', 'date', 'username')
     #unclaimedAdsTable.heading("#0", text='ID', anchor='w')
     #unclaimedAdsTable.column("#0", anchor="w")
     unclaimedAdsTable['show'] = 'headings'
@@ -507,11 +546,11 @@ def moderator_screen():
     unclaimedAdsTable.column('description', width=125)
     unclaimedAdsTable.heading('price', text='Price')
     unclaimedAdsTable.column('price', width=125)
-    unclaimedAdsTable.heading('status', text='Status')
-    unclaimedAdsTable.column('status', width=125)
     unclaimedAdsTable.heading('date', text='Date')
     unclaimedAdsTable.column('date', width=125)
-    build_unclaimed_ads_table(unclaimedAdsTable)
+    unclaimedAdsTable.heading('username', text='Username')
+    unclaimedAdsTable.column('username', width=125)
+    initialize_unclaimed_ads_table(unclaimedAdsTable)
 
     #This is the start for the my advertisements tab inside of the moderator
 
@@ -524,8 +563,30 @@ def moderator_screen():
     rowsize, columnsize = optionsframe.grid_size()
     Button(optionsframe2, text="Approve", command=claimad_button_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
 
+
+    # this functions builds the Advertisement table given the table name and where clause
+
+    status = 'Active'
+    sqlstatement2 = "SELECT A.Moderator_ID,A.AdvTitle, A.AdvDetails, A.price,A.Status_ID, A.AdvDateTime, A.Advertisements_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE B.StatusName =  %(StatusName)s "
+
+    wherecluase = ''
+
+    def build_my_ad_table(table, where):
+        # clears out old data
+        for row in table.get_children():
+            table.delete(row)
+        # sets up Query
+        my_cursor1 = mydb.cursor()
+        tempsql = sqlstatement2 + where
+        my_cursor1.execute(tempsql, {"StatusName": status})
+        records = my_cursor1.fetchall()
+        # inserts updated records
+        for row in records:
+            table.insert('', 'end', values=(row[0], row[1], row[2], row[3], row[4],row[5].strftime("%y/ %m/ %d"),row[6]))
+            table.pack()
+
     myAdsTable = ttk.Treeview(tableframe2)  # Unclaimed Ads Table
-    myAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date')
+    myAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date', 'username')
     # unclaimedAdsTable.heading("#0", text='ID', anchor='w')
     # unclaimedAdsTable.column("#0", anchor="w")
     myAdsTable['show'] = 'headings'
@@ -541,8 +602,10 @@ def moderator_screen():
     myAdsTable.column('status', width=125)
     myAdsTable.heading('date', text='Date')
     myAdsTable.column('date', width=125)
+    myAdsTable.heading('username', text='Username')
+    myAdsTable.column('username', width=125)
     myAdsTable.pack()
-
+    build_my_ad_table(myAdsTable, wherecluase)
 
 
 
