@@ -41,9 +41,9 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="Password", # this will be different depening on your database
+ password="root", # this will be different depening on your database
  database="Project2",
- port = 3306 #8889 #3306 ,
+ port = 8889 #3306 ,
  #auth_plugin='mysql_native_password'
 )
 
@@ -193,6 +193,13 @@ def add_advertisement():
     create_ad_button = Button(add_advertisement_screen,text="Create AD ", height="3", width="30", command=create_ad)
     create_ad_button.pack()
 
+def edit_advertisement(selectedItem):
+    # todo add functionality
+    global edit_advertisement_screen
+    edit_advertisement_screen = Tk()
+    edit_advertisement_screen.geometry("300x400")
+    edit_advertisement_screen.title("Edit Advertisement")
+    row_data = selectedItem['values']
 
 
 def user_screen(username):
@@ -225,8 +232,15 @@ def user_screen(username):
             wherecluase += ' AND A.AdvTitle LIKE \'%' + search + '%\' OR A.AdvDetails LIKE \'%'  + search + '%\' '
         # rebuilds the table
         build_advertisements_table(advertisements, wherecluase)
+    def selectrow():
+        item = my_advertisements.item(my_advertisements.selection())
+        return item
     def edit_button_click():
         # todo add functionality
+        my_advertisements.bind('<ButtonRelease-1>', selectrow)
+        my_advertisements.grid()
+        selectedItem = selectrow()
+        edit_advertisement(selectedItem)
         print('Edit button clicked')
     def delete_button_click():
         # todo add functionality
@@ -337,6 +351,7 @@ def user_screen(username):
 
 
     ## My advertisements Tab
+
     optionsframe2 = ttk.Frame(tab2)
     optionsframe2.pack(side="top", fill="x")  # Split tab into two frames top and bottom
 
@@ -344,7 +359,8 @@ def user_screen(username):
     tableframe2.pack(side="bottom", fill="x")
     optionsframe2.columnconfigure(0, weight=1)
     optionsframe2.columnconfigure(1, weight=1)
-    Button(optionsframe2, text="EDIT", command=edit_button_click, width= 20, height=4).grid(row=0, column= 0, padx=20 , pady=5)  # Edit  button
+
+      # Edit  button
     Button(optionsframe2, text="DELETE", command=delete_button_click, width = 20,  height=4).grid(row=0, column=1, padx=20, pady=5 )  # Delete Search button
 
     def build_my_advertisements_table(table):
@@ -376,10 +392,12 @@ def user_screen(username):
     my_advertisements.column('date', width=120)
 
 
+
+
     build_my_advertisements_table(my_advertisements)
 
-
-
+    Button(optionsframe2, text="EDIT", command=edit_button_click, width=20, height=4).grid(row=0, column=0,
+                                                                                                 padx=20, pady=5)
     tab_control.pack(expand=1, fill="both")
     user_screen.mainloop()
 
