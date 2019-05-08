@@ -417,6 +417,8 @@ def moderator_screen(moderator_username):
         sqlstatement27 = "UPDATE Advertisements SET Moderator_ID = %(moderator_id)s WHERE Advertisements_ID = %(adID)s"
         my_cursor = mydb.cursor()
         my_cursor.execute(sqlstatement27, {"adID": selectedItem['values'][0], "moderator_id": moderator_username})
+        mydb.commit()
+        initialize_unclaimed_ads_table(unclaimedAdsTable)
     def search_button_click():
         # variables needed for SQL query
         category = category_verify_moderator.get()
