@@ -41,9 +41,9 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="root", # this will be different depening on your database
+ password="password", # this will be different depening on your database
  database="Project2",
- port = 8889 #3306 ,
+ port = 3306#8889 ,
  #auth_plugin='mysql_native_password'
 )
 
@@ -90,7 +90,7 @@ def login_verify():
         for x in list_of_moderators:
             if username == x[0]:
                 flag_moderator_found = True
-                login_success_moderators()
+                login_success_moderators(username)
         if not flag_moderator_found:
             moderator_not_found()
 
@@ -103,13 +103,13 @@ def login_success_user(username):
     Label(login_success_users_screen, text="Login Success").pack()
     Button(login_success_users_screen, text="OK", command=delete_login_success_users(username)).pack()
 
-def login_success_moderators():
+def login_success_moderators(username):
     global login_success_moderators_screen
     login_success_moderators_screen = Toplevel(main_screen)
     login_success_moderators_screen.title("Success")
     login_success_moderators_screen.geometry("150x100")
     Label(login_success_moderators_screen, text="Login Success").pack()
-    Button(login_success_moderators_screen, text="OK", command=delete_login_success_moderators).pack()
+    Button(login_success_moderators_screen, text="OK", command=delete_login_success_moderators(username)).pack()
 
 def user_not_found():
     global user_not_found_screen
@@ -131,9 +131,9 @@ def delete_login_success_users(username):
     login_success_users_screen.destroy()
     user_screen(username)
 
-def delete_login_success_moderators():
+def delete_login_success_moderators(username):
     login_success_moderators_screen.destroy()
-    moderator_screen()
+    moderator_screen(username)
 
 def delete_user_not_found_screen():
     user_not_found_screen.destroy()
@@ -402,8 +402,21 @@ def user_screen(username):
     user_screen.mainloop()
 
 
-def moderator_screen():
+def moderator_screen(moderator_username):
+    def selectrow_mod(tableparam):
+        item = tableparam.item(tableparam.selection())
+        return item
+    def claimad_button_click():
+        print("Ad Claim Button Clicked")
+        # todo add functionality
+        unclaimedAdsTable.bind('<ButtonRelease-1>', selectrow_mod(unclaimedAdsTable))
+        unclaimedAdsTable.grid()
+        selectedItem = selectrow_mod(unclaimedAdsTable)
 
+        print('Edit button clicked')
+        sqlstatement27 = "UPDATE Advertisements SET Moderator_ID = %(moderator_id)s WHERE Advertisements_ID = %(adID)s"
+        my_cursor = mydb.cursor()
+        my_cursor.execute(sqlstatement27, {"adID": selectedItem['values'][0], "moderator_id": moderator_username})
     def search_button_click():
         # variables needed for SQL query
         category = category_verify_moderator.get()
@@ -432,8 +445,7 @@ def moderator_screen():
         # rebuilds the table
         build_unclaimed_ads_table(unclaimedAdsTable, wherecluase)
 
-    def claimad_button_click():
-        print("Ad Claim Button Clicked")
+
     def initialize_unclaimed_ads_table(table):
         # clears out old data
         for row in table.get_children():
