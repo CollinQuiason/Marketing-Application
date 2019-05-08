@@ -41,7 +41,7 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="Password", # this will be different depening on your database
+ password="password", # this will be different depening on your database
  database="Project2",
  port = 3306 #8889 #3306 ,
  #auth_plugin='mysql_native_password'
