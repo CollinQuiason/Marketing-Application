@@ -2,6 +2,7 @@ from tkinter import *
 from tkinter import ttk
 import mysql.connector
 import datetime
+import time
 
 import hashlib
 import os
@@ -47,14 +48,7 @@ mydb = mysql.connector.connect(
  #auth_plugin='mysql_native_password'
 )
 
-#mycursor = mydb.cursor()
-#sqlstatement = "SELECT * FROM users WHERE UserFirstName = %(name)s;"
-#mycursor.execute(sqlstatement, {"name": "Connor"})
 
-#myresult = mycursor.fetchall()
-
-#for x in myresult:
-#  print(x)
 
 
 
@@ -197,7 +191,6 @@ def user_screen(username):
         create_ad_button.pack()
 
     def create_ad():
-        # todo query the database and create the entry
         # Queries database to make sure user is in database
         title = adv_title_verify.get()
         details = adv_descp_verify.get()
@@ -247,7 +240,6 @@ def user_screen(username):
         build_advertisements_table(advertisements, wherecluase)
 
     def edit_advertisement(selectedItem):
-        # todo add functionality
         global edit_advertisement_screen
         edit_advertisement_screen = Tk()
         edit_advertisement_screen.geometry("300x400")
@@ -329,15 +321,25 @@ def user_screen(username):
         item = my_advertisements.item(my_advertisements.selection())
         return item
     def edit_button_click():
-        # todo add functionality
         my_advertisements.bind('<ButtonRelease-1>', selectrow)
         my_advertisements.grid()
         selectedItem = selectrow()
         edit_advertisement(selectedItem)
-        print('Edit button clicked')
+
+
     def delete_button_click():
-        # todo add functionality
-        print('delete button clicked')
+        my_advertisements.bind('<ButtonRelease-1>', selectrow)
+        my_advertisements.grid()
+        selectedItem = selectrow()
+
+        ADID = selectedItem['values'][0]
+        my_cursor = mydb.cursor()
+        sql_delete_statement = "DELETE FROM Advertisements WHERE Advertisements.Advertisements_ID = %(ID)s; "
+        my_cursor.execute(sql_delete_statement, {"ID": ADID})
+        time.sleep(5)
+        build_my_advertisements_table(my_advertisements)
+
+
     # deletes the login screen
     main_screen.destroy()
 
