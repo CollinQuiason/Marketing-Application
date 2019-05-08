@@ -222,7 +222,7 @@ def user_screen(username):
             wherecluase += ' AND (A.AdvDateTime BETWEEN \' ' + past_date.strftime('%y-%m-%d') + '\' AND \'' + today.strftime('%y-%m-%d') +'\')'
         # adds search filtering to where clause
         if search != '':
-            wherecluase += ' AND A.AdvDetails or A.AdvTitle LIKE \'%' + search + '%\''
+            wherecluase += ' AND A.AdvTitle LIKE \'%' + search + '%\' OR A.AdvDetails LIKE \'%'  + search + '%\' '
         # rebuilds the table
         build_advertisements_table(advertisements, wherecluase)
     def edit_button_click():
@@ -347,11 +347,14 @@ def user_screen(username):
     Button(optionsframe2, text="EDIT", command=edit_button_click, width= 20, height=4).grid(row=0, column= 0, padx=20 , pady=5)  # Edit  button
     Button(optionsframe2, text="DELETE", command=delete_button_click, width = 20,  height=4).grid(row=0, column=1, padx=20, pady=5 )  # Delete Search button
 
-    def build_my_advertisements_table(table, records):
+    def build_my_advertisements_table(table):
         for row in table.get_children():
             table.delete(row)
-
-        for row in records:
+        my_cursor = mydb.cursor()
+        sqlstatement2 = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
+        my_cursor.execute(sqlstatement2, {"User_ID": username})
+        result = my_cursor.fetchall()
+        for row in result:
             table.insert('', 'end', values=(row[0], row[1], row[2], row[3],row[4], row[5].strftime("%y/ %m/ %d")))
             table.pack()
 
@@ -372,16 +375,10 @@ def user_screen(username):
     my_advertisements.heading('date', text='Date')
     my_advertisements.column('date', width=120)
 
-    my_cursor = mydb.cursor()
-    sqlstatement2 = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
-    my_cursor.execute(sqlstatement2, {"User_ID": username})
-    result = my_cursor.fetchall()
-    build_my_advertisements_table(my_advertisements, result)
-    def selectrow(event):
-        item = my_advertisements.item(my_advertisements.selection())
-        print(item)
 
-    my_advertisements.bind('<ButtonRelease-1>', selectrow)
+    build_my_advertisements_table(my_advertisements)
+
+
 
     tab_control.pack(expand=1, fill="both")
     user_screen.mainloop()
@@ -394,7 +391,20 @@ def moderator_screen():
 
     def claimad_button_click():
         print("Ad Claim Button Clicked")
+    def build_unclaimed_ads_table(table):
+        # clears out old data
+        for row in table.get_children():
+            table.delete(row)
+        # sets up Query
+        my_cursor = mydb.cursor()
 
+        sqlstatement = "SELECT Advertisements_ID, AdvTitle, AdvDetails, price, AdvDateTime, User_ID FROM advertisements WHERE Moderator_ID = \'null\'"
+        my_cursor.execute(sqlstatement)
+        records = my_cursor.fetchall()
+        # inserts updated records
+        for row in records:
+            table.insert('', 'end', values=(row[0],row[1],row[2],row[3],row[4].strftime("%y/ %m/ %d"),row[5]))
+        table.pack()
     # todo add stuff
     main_screen.destroy()
     global moderator_screen
@@ -483,7 +493,7 @@ def moderator_screen():
     unclaimedAdsTable.column('status', width=125)
     unclaimedAdsTable.heading('date', text='Date')
     unclaimedAdsTable.column('date', width=125)
-    unclaimedAdsTable.pack()
+    build_unclaimed_ads_table(unclaimedAdsTable)
 
     #This is the start for the my advertisements tab inside of the moderator
 
