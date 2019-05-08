@@ -41,9 +41,9 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="Password", # this will be different depening on your database
+ password="root", # this will be different depening on your database
  database="Project2",
- port = 3306#8889 ,
+ port = 8889 ,
  #auth_plugin='mysql_native_password'
 )
 
@@ -141,64 +141,83 @@ def delete_user_not_found_screen():
 
 def delete_moderator_not_found_screen():
     moderator_not_found_screen.destroy()
-def create_ad():
-    # todo query the database and create the entry
-
-    print("create button clicked")
-
-def add_advertisement():
-    # todo add functionality
-    global add_advertisement_screen
-    add_advertisement_screen = Tk()
-    add_advertisement_screen.geometry("300x400")
-    add_advertisement_screen.title("Add Advetisement")
-
-    # title entry
-    global adv_title_verify
-    adv_title_verify = StringVar(add_advertisement_screen)
-    Label(add_advertisement_screen, text="Title ").pack()
-    adv_title_entry = Entry(add_advertisement_screen, textvariable=adv_title_verify)
-    adv_title_entry.pack()
-    Label(text="").pack()
-    # description entry
-    global adv_descp_verify
-    adv_descp_verify = StringVar(add_advertisement_screen)
-    Label(add_advertisement_screen, text="Description ").pack()
-    adv_descp_entry = Entry(add_advertisement_screen, textvariable=adv_descp_verify, width="30",)
-    adv_descp_entry.pack()
-    Label(text="").pack()
-    type_options = [  # Category options menu
-        "Cars and Trucks",
-        "Houseing",
-        "Electronics",
-        "Child Care"
-    ]
-    # category Selection
-    global ad_type_verify
-    Label(add_advertisement_screen, text="Category ").pack()
-    ad_type_verify = StringVar(add_advertisement_screen)
-    ad_type_verify.set(type_options[0])  # default value
-    ad_type_entry = OptionMenu(add_advertisement_screen, ad_type_verify, *type_options)
-    ad_type_entry.pack()
-    Label(text="").pack()
-    # price entry
-    global adv_price_verify
-    adv_price_verify = StringVar(add_advertisement_screen)
-    Label(add_advertisement_screen, text="Price ").pack()
-    adv_price_entry = Entry(add_advertisement_screen, textvariable=adv_price_verify)
-    adv_price_entry.pack()
-    Label(text="").pack()
-    Label(text="").pack()
-
-    # create Advertisement  Button
-    create_ad_button = Button(add_advertisement_screen,text="Create AD ", height="3", width="30", command=create_ad)
-    create_ad_button.pack()
-
 
 
 def user_screen(username):
     # todo add advertisement, edit delete.
     global search_entry
+
+    def add_advertisement():
+        # todo add functionality
+        global add_advertisement_screen
+        add_advertisement_screen = Tk()
+        add_advertisement_screen.geometry("300x400")
+        add_advertisement_screen.title("Add Advetisement")
+
+        # title entry
+        global adv_title_verify
+        adv_title_verify = StringVar(add_advertisement_screen)
+        Label(add_advertisement_screen, text="Title ").pack()
+        adv_title_entry = Entry(add_advertisement_screen, textvariable=adv_title_verify)
+        adv_title_entry.pack()
+        Label(text="").pack()
+        # description entry
+        global adv_descp_verify
+        adv_descp_verify = StringVar(add_advertisement_screen)
+        Label(add_advertisement_screen, text="Description ").pack()
+        adv_descp_entry = Entry(add_advertisement_screen, textvariable=adv_descp_verify, width="30", )
+        adv_descp_entry.pack()
+        Label(text="").pack()
+        type_options = [  # Category options menu
+            "Cars and Trucks",
+            "Houseing",
+            "Electronics",
+            "Child Care"
+        ]
+        # category Selection
+        global ad_type_verify
+        Label(add_advertisement_screen, text="Category ").pack()
+        ad_type_verify = StringVar(add_advertisement_screen)
+        ad_type_verify.set(type_options[0])  # default value
+        ad_type_entry = OptionMenu(add_advertisement_screen, ad_type_verify, *type_options)
+        ad_type_entry.pack()
+        Label(text="").pack()
+        # price entry
+        global adv_price_verify
+        adv_price_verify = StringVar(add_advertisement_screen)
+        Label(add_advertisement_screen, text="Price ").pack()
+        adv_price_entry = Entry(add_advertisement_screen, textvariable=adv_price_verify)
+        adv_price_entry.pack()
+        Label(text="").pack()
+        Label(text="").pack()
+
+        # create Advertisement  Button
+        create_ad_button = Button(add_advertisement_screen, text="Create AD ", height="3", width="30",
+                                  command=create_ad)
+        create_ad_button.pack()
+
+    def create_ad():
+        # todo query the database and create the entry
+        # Queries database to make sure user is in database
+        title = adv_title_verify.get()
+        details = adv_descp_verify.get()
+        category = ad_type_verify.get()
+        price = adv_price_verify.get()
+        date = datetime.date.today()
+        status = "PN"
+
+        my_cursor = mydb.cursor()
+        sql_add_statement = "INSERT INTO Advertisements (AdvTitle, AdvDetails, AdvDateTime, price, User_ID, Category_ID, Status_ID) VALUES (%(title)s, %(details)s, %(date)s, %(price)s, %(username)s, (SELECT Category_ID FROM Categories WHERE CatName = %(category)s), %(status)s)"
+        my_cursor.execute(sql_add_statement, (
+            {"title": title, "details": details, "date": date.strftime('%y-%m-%d'), "price": price,
+             "username": username,
+             "category": category, "status": status}))
+        mydb.commit()
+        add_advertisement_screen.destroy()
+        build_my_advertisements_table(my_advertisements)
+
+
+
     def search_button_click2():
         # variables needed for SQL query
         category = category_verify.get()
