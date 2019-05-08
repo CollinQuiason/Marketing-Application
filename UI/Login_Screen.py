@@ -41,9 +41,9 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="password", # this will be different depening on your database
+ password="Password", # this will be different depening on your database
  database="Project2",
- port = 3306#8889 ,
+ port = 3306 #8889 #3306 ,
  #auth_plugin='mysql_native_password'
 )
 
@@ -222,7 +222,7 @@ def user_screen(username):
             wherecluase += ' AND (A.AdvDateTime BETWEEN \' ' + past_date.strftime('%y-%m-%d') + '\' AND \'' + today.strftime('%y-%m-%d') +'\')'
         # adds search filtering to where clause
         if search != '':
-            wherecluase += ' AND A.AdvDetails or A.AdvTitle LIKE \'%' + search + '%\''
+            wherecluase += ' AND A.AdvTitle LIKE \'%' + search + '%\' OR A.AdvDetails LIKE \'%'  + search + '%\' '
         # rebuilds the table
         build_advertisements_table(advertisements, wherecluase)
     def edit_button_click():
@@ -347,11 +347,14 @@ def user_screen(username):
     Button(optionsframe2, text="EDIT", command=edit_button_click, width= 20, height=4).grid(row=0, column= 0, padx=20 , pady=5)  # Edit  button
     Button(optionsframe2, text="DELETE", command=delete_button_click, width = 20,  height=4).grid(row=0, column=1, padx=20, pady=5 )  # Delete Search button
 
-    def build_my_advertisements_table(table, records):
+    def build_my_advertisements_table(table):
         for row in table.get_children():
             table.delete(row)
-
-        for row in records:
+        my_cursor = mydb.cursor()
+        sqlstatement2 = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
+        my_cursor.execute(sqlstatement2, {"User_ID": username})
+        result = my_cursor.fetchall()
+        for row in result:
             table.insert('', 'end', values=(row[0], row[1], row[2], row[3],row[4], row[5].strftime("%y/ %m/ %d")))
             table.pack()
 
@@ -372,16 +375,10 @@ def user_screen(username):
     my_advertisements.heading('date', text='Date')
     my_advertisements.column('date', width=120)
 
-    my_cursor = mydb.cursor()
-    sqlstatement2 = "SELECT A.Advertisements_ID, A.AdvTitle, A.AdvDetails, A.price, B.StatusName, A.AdvDateTime, A.User_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID WHERE A.User_ID = %(User_ID)s; "
-    my_cursor.execute(sqlstatement2, {"User_ID": username})
-    result = my_cursor.fetchall()
-    build_my_advertisements_table(my_advertisements, result)
-    def selectrow(event):
-        item = my_advertisements.item(my_advertisements.selection())
-        print(item)
 
-    my_advertisements.bind('<ButtonRelease-1>', selectrow)
+    build_my_advertisements_table(my_advertisements)
+
+
 
     tab_control.pack(expand=1, fill="both")
     user_screen.mainloop()
@@ -537,7 +534,38 @@ def moderator_screen():
     unclaimedAdsTable.column('username', width=125)
     initialize_unclaimed_ads_table(unclaimedAdsTable)
 
-    
+    #This is the start for the my advertisements tab inside of the moderator
+
+    optionsframe2 = ttk.Frame(tab2)
+    optionsframe2.pack(side="top", fill="x")  # Split tab into two frames top and bottom for My Advertisements
+
+    tableframe2 = ttk.Frame(tab2)  # Split tab into two frames top and bottom for My Advertisements
+    tableframe2.pack(side="bottom", fill="x")
+
+    rowsize, columnsize = optionsframe.grid_size()
+    Button(optionsframe2, text="Approve", command=claimad_button_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
+
+    myAdsTable = ttk.Treeview(tableframe2)  # Unclaimed Ads Table
+    myAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date')
+    # unclaimedAdsTable.heading("#0", text='ID', anchor='w')
+    # unclaimedAdsTable.column("#0", anchor="w")
+    myAdsTable['show'] = 'headings'
+    myAdsTable.heading('id', text='ID')
+    myAdsTable.column('id', width=125)
+    myAdsTable.heading('title', text='Title')
+    myAdsTable.column('title', width=125)
+    myAdsTable.heading('description', text='Description')
+    myAdsTable.column('description', width=125)
+    myAdsTable.heading('price', text='Price')
+    myAdsTable.column('price', width=125)
+    myAdsTable.heading('status', text='Status')
+    myAdsTable.column('status', width=125)
+    myAdsTable.heading('date', text='Date')
+    myAdsTable.column('date', width=125)
+    myAdsTable.pack()
+
+
+
 
 
     tab_control.pack(expand=1, fill="both")  # Pack to make visible
