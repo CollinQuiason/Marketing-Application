@@ -41,9 +41,9 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="root", # this will be different depening on your database
+ password="Password", # this will be different depening on your database
  database="Project2",
- port = 8889 #3306 ,
+ port = 3306#8889 ,
  #auth_plugin='mysql_native_password'
 )
 
@@ -90,7 +90,7 @@ def login_verify():
         for x in list_of_moderators:
             if username == x[0]:
                 flag_moderator_found = True
-                login_success_moderators()
+                login_success_moderators(username)
         if not flag_moderator_found:
             moderator_not_found()
 
@@ -103,13 +103,13 @@ def login_success_user(username):
     Label(login_success_users_screen, text="Login Success").pack()
     Button(login_success_users_screen, text="OK", command=delete_login_success_users(username)).pack()
 
-def login_success_moderators():
+def login_success_moderators(username):
     global login_success_moderators_screen
     login_success_moderators_screen = Toplevel(main_screen)
     login_success_moderators_screen.title("Success")
     login_success_moderators_screen.geometry("150x100")
     Label(login_success_moderators_screen, text="Login Success").pack()
-    Button(login_success_moderators_screen, text="OK", command=delete_login_success_moderators).pack()
+    Button(login_success_moderators_screen, text="OK", command=delete_login_success_moderators(username)).pack()
 
 def user_not_found():
     global user_not_found_screen
@@ -131,9 +131,9 @@ def delete_login_success_users(username):
     login_success_users_screen.destroy()
     user_screen(username)
 
-def delete_login_success_moderators():
+def delete_login_success_moderators(username):
     login_success_moderators_screen.destroy()
-    moderator_screen()
+    moderator_screen(username)
 
 def delete_user_not_found_screen():
     user_not_found_screen.destroy()
@@ -476,8 +476,23 @@ def user_screen(username):
     user_screen.mainloop()
 
 
-def moderator_screen():
+def moderator_screen(moderator_username):
+    def selectrow_mod(tableparam):
+        item = tableparam.item(tableparam.selection())
+        return item
+    def claimad_button_click():
+        print("Ad Claim Button Clicked")
+        # todo add functionality
+        unclaimedAdsTable.bind('<ButtonRelease-1>', selectrow_mod(unclaimedAdsTable))
+        unclaimedAdsTable.grid()
+        selectedItem = selectrow_mod(unclaimedAdsTable)
 
+        sqlstatement27 = "UPDATE Advertisements SET Moderator_ID = %(moderator_id)s WHERE Advertisements_ID = %(adID)s"
+        my_cursor = mydb.cursor()
+        my_cursor.execute(sqlstatement27, {"adID": selectedItem['values'][0], "moderator_id": moderator_username})
+        mydb.commit()
+        initialize_unclaimed_ads_table(unclaimedAdsTable)
+        build_my_ad_table(myAdsTable)
     def search_button_click():
         # variables needed for SQL query
         category = category_verify_moderator.get()
@@ -506,8 +521,7 @@ def moderator_screen():
         # rebuilds the table
         build_unclaimed_ads_table(unclaimedAdsTable, wherecluase)
 
-    def claimad_button_click():
-        print("Ad Claim Button Clicked")
+
     def initialize_unclaimed_ads_table(table):
         # clears out old data
         for row in table.get_children():
@@ -627,6 +641,24 @@ def moderator_screen():
     initialize_unclaimed_ads_table(unclaimedAdsTable)
 
     #This is the start for the my advertisements tab inside of the moderator
+    def selectrow_mod(tableparam):
+        item = tableparam.item(tableparam.selection())
+        return item
+
+    def approved_botton_click():
+       myAdsTable.bind('<ButtonRelease-1>', selectrow_mod(myAdsTable))
+       myAdsTable.grid()
+       selectedItem = selectrow_mod(myAdsTable)
+
+       sqlstatement33 = "UPDATE Advertisements SET Status_ID = \'AC\' WHERE Advertisements_ID = %(adID)s"
+       my_cursor = mydb.cursor()
+       print(selectedItem['values'][0])
+       my_cursor.execute(sqlstatement33, {"adID": selectedItem['values'][0]})
+       mydb.commit()
+       build_my_ad_table(myAdsTable)
+
+    print ("Button Clicked")
+
 
     optionsframe2 = ttk.Frame(tab2)
     optionsframe2.pack(side="top", fill="x")  # Split tab into two frames top and bottom for My Advertisements
@@ -635,24 +667,22 @@ def moderator_screen():
     tableframe2.pack(side="bottom", fill="x")
 
     rowsize, columnsize = optionsframe.grid_size()
-    Button(optionsframe2, text="Approve", command=claimad_button_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
+    Button(optionsframe2, text="Approve", command=approved_botton_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
 
 
     # this functions builds the Advertisement table given the table name and where clause
 
     status = 'Active'
-    sqlstatement2 = "SELECT A.Moderator_ID,A.AdvTitle, A.AdvDetails, A.price,A.Status_ID, A.AdvDateTime, A.Advertisements_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE B.StatusName =  %(StatusName)s "
+    sqlstatement2 = "SELECT A.Advertisements_ID,A.AdvTitle, A.AdvDetails, A.price,A.Status_ID, A.AdvDateTime, A.Advertisements_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE A.Moderator_ID =  %(moderator_id)s "
 
-    wherecluase = ''
-
-    def build_my_ad_table(table, where):
+    def build_my_ad_table(table):
         # clears out old data
         for row in table.get_children():
             table.delete(row)
         # sets up Query
         my_cursor1 = mydb.cursor()
-        tempsql = sqlstatement2 + where
-        my_cursor1.execute(tempsql, {"StatusName": status})
+        tempsql = sqlstatement2
+        my_cursor1.execute(tempsql, {"moderator_id": moderator_username})
         records = my_cursor1.fetchall()
         # inserts updated records
         for row in records:
@@ -679,7 +709,7 @@ def moderator_screen():
     myAdsTable.heading('username', text='Username')
     myAdsTable.column('username', width=125)
     myAdsTable.pack()
-    build_my_ad_table(myAdsTable, wherecluase)
+    build_my_ad_table(myAdsTable)
 
 
 
