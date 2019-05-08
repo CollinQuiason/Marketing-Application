@@ -41,7 +41,7 @@ def hash(salt, password):
 mydb = mysql.connector.connect(
  host="localhost",
  user="root",
- password="password", # this will be different depening on your database
+ password="Password", # this will be different depening on your database
  database="Project2",
  port = 3306 #8889 #3306 ,
  #auth_plugin='mysql_native_password'
@@ -545,8 +545,30 @@ def moderator_screen():
     rowsize, columnsize = optionsframe.grid_size()
     Button(optionsframe2, text="Approve", command=claimad_button_click, justify="right").grid(row=3, column=4, padx=680, pady=100)
 
+
+    # this functions builds the Advertisement table given the table name and where clause
+
+    status = 'Active'
+    sqlstatement2 = "SELECT A.Moderator_ID,A.AdvTitle, A.AdvDetails, A.price,A.Status_ID, A.AdvDateTime, A.Advertisements_ID FROM Advertisements A INNER JOIN Status_Type B on A.Status_ID = B.Status_ID INNER JOIN Categories C ON A.Category_ID = C.Category_ID WHERE B.StatusName =  %(StatusName)s "
+
+    wherecluase = ''
+
+    def build_my_ad_table(table, where):
+        # clears out old data
+        for row in table.get_children():
+            table.delete(row)
+        # sets up Query
+        my_cursor1 = mydb.cursor()
+        tempsql = sqlstatement2 + where
+        my_cursor1.execute(tempsql, {"StatusName": status})
+        records = my_cursor1.fetchall()
+        # inserts updated records
+        for row in records:
+            table.insert('', 'end', values=(row[0], row[1], row[2], row[3], row[4],row[5].strftime("%y/ %m/ %d"),row[6]))
+            table.pack()
+
     myAdsTable = ttk.Treeview(tableframe2)  # Unclaimed Ads Table
-    myAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date')
+    myAdsTable['columns'] = ('id', 'title', 'description', 'price', 'status', 'date', 'username')
     # unclaimedAdsTable.heading("#0", text='ID', anchor='w')
     # unclaimedAdsTable.column("#0", anchor="w")
     myAdsTable['show'] = 'headings'
@@ -562,8 +584,10 @@ def moderator_screen():
     myAdsTable.column('status', width=125)
     myAdsTable.heading('date', text='Date')
     myAdsTable.column('date', width=125)
+    myAdsTable.heading('username', text='Username')
+    myAdsTable.column('username', width=125)
     myAdsTable.pack()
-
+    build_my_ad_table(myAdsTable, wherecluase)
 
 
 
