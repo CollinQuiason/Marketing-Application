@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="580d55b8-7908-4b82-aae2-9901a3003d63" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Login_Screen.py" beforeDir="false" afterPath="$PROJECT_DIR$/Login_Screen.py" afterDir="false" />
-    </list>
+    <list default="true" id="580d55b8-7908-4b82-aae2-9901a3003d63" name="Default Changelist" comment="Added SQL into the hollow" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,12 +32,12 @@
       <usages-collector id="statistics.file.extensions.edit">
         <counts>
           <entry key="py" value="541" />
-          <entry key="txt" value="76" />
+          <entry key="txt" value="103" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.types.edit">
         <counts>
-          <entry key="PLAIN_TEXT" value="76" />
+          <entry key="PLAIN_TEXT" value="103" />
           <entry key="Python" value="541" />
         </counts>
       </usages-collector>
@@ -73,7 +70,7 @@
       </list>
     </option>
   </component>
-  <component name="ProjectFrameBounds" extendedState="6">
+  <component name="ProjectFrameBounds" extendedState="7">
     <option name="x" value="948" />
     <option name="width" value="981" />
     <option name="height" value="1032" />
@@ -277,7 +274,14 @@
       <option name="project" value="LOCAL" />
       <updated>1557274024315</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="Added the hollow shell for the my advertisements tab">
+      <created>1557277775800</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1557277775800</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="TodoView">
@@ -317,7 +321,8 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Added the hollow shell for the my advertisements tab" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added the hollow shell for the my advertisements tab" />
+    <MESSAGE value="Added SQL into the hollow" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added SQL into the hollow" />
   </component>
   <component name="editorHistoryManager">
     <entry file="file://$PROJECT_DIR$/Login_Screen.py">
